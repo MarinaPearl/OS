@@ -1,0 +1,5 @@
+*.txt
+*.jpg
+*.vcxproj.*
+*.vcxproj
+/lab*/.vs/
