@@ -26,10 +26,6 @@ int main() {
     if (err != SUCCESS) {
         printError(err, "unable to create thread");
     }
-    err = pthread_join(ntid, NULL);
-    if (err != SUCCESS) {
-        printError(err, "it is impossible to continue the main stream");
-    }
     printTextInThread((void*)&mainThread);
-    return EXIT_SUCCESS;
+    pthread_exit(NULL);
 }
