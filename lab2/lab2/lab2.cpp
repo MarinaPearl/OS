@@ -1,20 +1,35 @@
-﻿// lab2.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
-
-#include <iostream>
-
-int main()
-{
-    std::cout << "Hello World!\n";
+﻿#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h> 
+#include <string.h>
+#define SUCCESS 0
+typedef struct argumentsForFunction {
+    const char* text;
+    int count;
+} argumetsForFunctionInThread;
+void* printTextInThread(void* args) {
+    argumetsForFunctionInThread* value = (argumetsForFunctionInThread*)args;
+    for (int i = 0; i < value->count; ++i) {
+        printf("%s\n", value->text);
+    }
+    return NULL;
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
+void printError(int valueError, const char* msg) {
+    fprintf(stderr, "%s cause : %s\n", msg, strerror(valueError));
+    exit(EXIT_FAILURE);
+}
+int main() {
+    pthread_t ntid;
+    argumetsForFunctionInThread newThread = { "Hello, I'm new thread\n", 10 };
+    argumetsForFunctionInThread mainThread = { "Hello, I'm main thread\n", 10 };
+    int err = pthread_create(&ntid, NULL, printTextInThread, (void*)&newThread);
+    if (err != SUCCESS) {
+        printError(err, "unable to create thread");
+    }
+    err = pthread_join(ntid, NULL);
+    if (err != SUCCESS) {
+        printError(err, "it is impossible to continue the main stream");
+    }
+    printTextInThread((void*)&mainThread);
+    return EXIT_SUCCESS;
+}
