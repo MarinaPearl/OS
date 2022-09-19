@@ -152,6 +152,7 @@ void collectionPartialSumm(pthread_t* ntid, argumentsForFunctionInThread* array,
 void printPi(double* pi) {
 	fprintf(stdout, "pi = %.20f\n", *pi);
 }
+
 void calculationPI(inputArguments args) {
 	int countIterationInOneThread[args.countThread];
 	divisionIteration(countIterationInOneThread, args);
@@ -166,6 +167,7 @@ void calculationPI(inputArguments args) {
 	collectionPartialSumm(ntid, arrayArguments, args, &pi);
 	printPi(&pi);
 }
+
 int main(int argc, char** argv) {
 	inputArguments args;
 
