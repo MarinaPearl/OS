@@ -166,13 +166,10 @@ void calculationPI(inputArguments args) {
 
 int main(int argc, char** argv) {
     inputArguments args;
-
     int code = parsingInputArguments(argc, argv, &args);
     if (code != inputArguments_SUCCESS) {
         inputError(code);
     }
-    
     calculationPI(args);
-
     return EXIT_SUCCESS;
 }
