@@ -105,7 +105,7 @@ void fillingGeneralArrayForFunctionInThread(argumentsForFunctionInThread* array,
     }
 }
 
-void processingThreadError(int valueError, const char* msg) {
+void threadError(int valueError, const char* msg) {
     fprintf(stderr, "%s cause : %s\n", msg, strerror(valueError));
     exit(EXIT_FAILURE);
 }
@@ -127,7 +127,7 @@ void createThread(pthread_t* ntid, argumentsForFunctionInThread* array, inputArg
     for (int i = 0; i < args.countThread; ++i) {
         int err = pthread_create(&ntid[i], NULL, calculatePartialSum, (void*)&array[i]);
         if (err != CREATE_SUCCESS) {
-            processingThreadError(err, "unable to create thread");
+            threadError(err, "unable to create thread");
         }
     }
 }
@@ -138,7 +138,7 @@ void collectionPartialSumm(pthread_t* ntid, argumentsForFunctionInThread* array,
     for (int i = 0; i < args.countThread; ++i) {
         int err = pthread_join(ntid[i], &resultInThread);
         if (err != JOIN_SUCCESS) {
-            processingThreadError(err, "error while waiting for thread");
+            threadError(err, "error while waiting for thread");
         }
         *sum += *(double*)resultInThread;
     }
