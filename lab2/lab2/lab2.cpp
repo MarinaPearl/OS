@@ -7,6 +7,7 @@ typedef struct argumentsForFunction {
     const char* text;
     int count;
 } argumetsForFunctionInThread;
+
 void* printTextInThread(void* args) {
     argumetsForFunctionInThread* value = (argumetsForFunctionInThread*)args;
     for (int i = 0; i < value->count; ++i) {
@@ -14,7 +15,7 @@ void* printTextInThread(void* args) {
     }
     return NULL;
 }
-void printError(int valueError, const char* msg) {
+void posixError(int valueError, const char* msg) {
     fprintf(stderr, "%s cause : %s\n", msg, strerror(valueError));
     exit(EXIT_FAILURE);
 }
@@ -24,11 +25,11 @@ int main() {
     argumetsForFunctionInThread mainThread = { "Hello, I'm main thread\n", 10 };
     int err = pthread_create(&ntid, NULL, printTextInThread, (void*)&newThread);
     if (err != SUCCESS) {
-        printError(err, "unable to create thread");
+        posixError(err, "unable to create thread");
     }
     err = pthread_join(ntid, NULL);
     if (err != SUCCESS) {
-        printError(err, "it is impossible to continue the main stream");
+        posixError(err, "it is impossible to continue the main stream");
     }
     printTextInThread((void*)&mainThread);
     return EXIT_SUCCESS;
