@@ -3,7 +3,6 @@
 #include <string.h>
 #include <pthread.h>
 #include <limits.h>
-
 #define RIGHT_NUMBER_ARGUMENTS 3
 #define STRING_TO_INT_FAILURE 0
 #define COMPARISON_SUCCESS 0
@@ -23,8 +22,7 @@ typedef struct argumentsForFunctionInThread {
 	double partialSum;
 } argumentsForFunctionInThread;
 
-enum parsInputArguments
-{
+enum parsInputArguments {
 	parsInputArguments_SUCCESS,
 	parsInputArguments_WRONG_COUNT_OF_ARGUMENTS,
 	parsInputArguments_VALUE_THREAD_NOT_NUMBER,
