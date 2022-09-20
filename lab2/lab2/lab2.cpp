@@ -3,6 +3,7 @@
 #include <pthread.h> 
 #include <string.h>
 #define SUCCESS 0
+
 typedef struct argumentsForFunction {
     const char* text;
     int count;
@@ -15,10 +16,12 @@ void* printTextInThread(void* args) {
     }
     return NULL;
 }
+
 void posixError(int valueError, const char* msg) {
     fprintf(stderr, "%s cause : %s\n", msg, strerror(valueError));
     exit(EXIT_FAILURE);
 }
+
 int main() {
     pthread_t ntid;
     argumetsForFunctionInThread newThread = { "Hello, I'm new thread\n", 10 };
