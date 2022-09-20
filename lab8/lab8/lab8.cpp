@@ -60,19 +60,19 @@ int parsingInputArguments(int argc, char** argv, inputArguments* arguments) {
 void inputError(int code) {
     switch (code) {
     case inputArguments_WRONG_COUNT_OF_ARGUMENTS:
-        fprintf(stderr, "introduced a wrong number of arguments\n");
+        fprintf(stderr, "Error : introduced a wrong number of arguments\n");
         break;
     case inputArguments_VALUE_THREAD_NOT_NUMBER:
-        fprintf(stderr, "thread argument is not an number\n");
+        fprintf(stderr, "Error : thread argument is not a number\n");
         break;
     case inputArguments_WRONG_COUNT_THREAD:
-        fprintf(stderr, "number of threads entered incorrectly\n");
+        fprintf(stderr, "Error : number of threads entered incorrectly\n");
         break;
     case inputArguments_VALUE_INTERATIONS_NOT_NUMBER:
-        fprintf(stderr, "iteration argument is not an number\n");
+        fprintf(stderr, "Error : iteration argument is not a number\n");
         break;
     case inputArguments_WRONG_COUNT_ITERATIONS:
-        fprintf(stderr, "number of iterations entered incorrectly\n");
+        fprintf(stderr, "Error : number of iterations entered incorrectly\n");
         break;
     }
     exit(EXIT_FAILURE);
