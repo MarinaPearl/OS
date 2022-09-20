@@ -112,7 +112,7 @@ void processingThreadError(int valueError, const char* msg) {
 
 void* calculatePartialSum(void* args) {
     argumentsForFunctionInThread* value = (argumentsForFunctionInThread*)args;
-    for (int i = value->startIteration; i < value->endIteration; ++i) 
+    for (int i = value->startIteration; i < value->endIteration; ++i) {
         if (i % 2 == 0) {
             value->partialSum += 1.0 / (i * 2.0 + 1.0);
         }
@@ -171,7 +171,7 @@ int main(int argc, char** argv) {
     if (code != inputArguments_SUCCESS) {
         inputError(code);
     }
-
+    
     calculationPI(args);
 
     return EXIT_SUCCESS;
