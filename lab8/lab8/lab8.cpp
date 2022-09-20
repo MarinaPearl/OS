@@ -23,56 +23,56 @@ typedef struct argumentsForFunctionInThread {
 } argumentsForFunctionInThread;
 
 enum parsInputArguments {
-    parsInputArguments_SUCCESS,
-    parsInputArguments_WRONG_COUNT_OF_ARGUMENTS,
-    parsInputArguments_VALUE_THREAD_NOT_NUMBER,
-    parsInputArguments_WRONG_COUNT_THREAD,
-    parsInputArguments_VALUE_INTERATIONS_NOT_NUMBER,
-    parsInputArguments_WRONG_COUNT_ITERATIONS
+    inputArguments_SUCCESS,
+    inputArguments_WRONG_COUNT_OF_ARGUMENTS,
+    inputArguments_VALUE_THREAD_NOT_NUMBER,
+    inputArguments_WRONG_COUNT_THREAD,
+    inputArguments_VALUE_INTERATIONS_NOT_NUMBER,
+    inputArguments_WRONG_COUNT_ITERATIONS
 };
 
 int parsingInputArguments(int argc, char** argv, inputArguments* arguments) {
     if (argc != RIGHT_NUMBER_ARGUMENTS) {
-        return parsInputArguments_WRONG_COUNT_OF_ARGUMENTS;
+        return inputArguments_WRONG_COUNT_OF_ARGUMENTS;
     }
 
     int countThread = atoi(argv[1]);
     if (countThread == STRING_TO_INT_FAILURE && strcmp(argv[1], "0") != COMPARISON_SUCCESS) {
-        return parsInputArguments_VALUE_THREAD_NOT_NUMBER;
+        return inputArguments_VALUE_THREAD_NOT_NUMBER;
     }
     if (countThread < 0 || countThread > MAX_THREAD) {
-        return parsInputArguments_WRONG_COUNT_THREAD;
+        return inputArguments_WRONG_COUNT_THREAD;
     }
     arguments->countThread = countThread;
 
     int countIterations = atoi(argv[2]);
     if (countIterations == STRING_TO_INT_FAILURE && strcmp(argv[2], "0") != COMPARISON_SUCCESS) {
-        return parsInputArguments_VALUE_INTERATIONS_NOT_NUMBER;
+        return inputArguments_VALUE_INTERATIONS_NOT_NUMBER;
     }
     if (countIterations < 0 || countIterations > MAX_ITERATIONS) {
-        return parsInputArguments_WRONG_COUNT_ITERATIONS;
+        return inputArguments_WRONG_COUNT_ITERATIONS;
     }
     arguments->countIterations = countIterations;
 
-    return parsInputArguments_SUCCESS;
+    return inputArguments_SUCCESS;
 }
 
 void inputError(int code) {
     switch (code)
     {
-    case parsInputArguments_WRONG_COUNT_OF_ARGUMENTS:
+    case inputArguments_WRONG_COUNT_OF_ARGUMENTS:
         fprintf(stderr, "introduced a wrong number of arguments\n");
         break;
-    case parsInputArguments_VALUE_THREAD_NOT_NUMBER:
+    case inputArguments_VALUE_THREAD_NOT_NUMBER:
         fprintf(stderr, "thread argument is not an number\n");
         break;
-    case parsInputArguments_WRONG_COUNT_THREAD:
+    case inputArguments_WRONG_COUNT_THREAD:
         fprintf(stderr, "number of threads entered incorrectly\n");
         break;
-    case parsInputArguments_VALUE_INTERATIONS_NOT_NUMBER:
+    case inputArguments_VALUE_INTERATIONS_NOT_NUMBER:
         fprintf(stderr, "iteration argument is not an number\n");
         break;
-    case parsInputArguments_WRONG_COUNT_ITERATIONS:
+    case inputArguments_WRONG_COUNT_ITERATIONS:
         fprintf(stderr, "number of iterations entered incorrectly\n");
         break;
     }
