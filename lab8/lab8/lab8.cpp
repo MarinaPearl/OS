@@ -92,17 +92,17 @@ void divisionIteration(int* array, inputArguments args) {
         }
 }
 
-void fillingGeneralArrayForFunctionInThread(argumentsForFunctionInThread* array, inputArguments args, int* count) {
+void fillingGeneralArrayForFunctionInThread(argumentsForFunctionInThread* array, inputArguments args, int* offset) {
     for (int i = 0; i < args.countThread; ++i) {
         if (i == 0) {
             array[i].startIteration = 0;
-            array[i].endIteration = count[i];
+            array[i].endIteration = offset[i];
         }
         else {
             array[i].startIteration = array[i - 1].endIteration;
-            array[i].endIteration = array[i - 1].endIteration + count[i];
+            array[i].endIteration = array[i - 1].endIteration + offset[i];
         }
-        array[i].partialSum = 0;
+        array[i].partialSum = 0.0;
     }
 }
 
@@ -116,7 +116,6 @@ void* calculatePartialSum(void* args) {
     for (int i = value->startIteration; i < value->endIteration; ++i) {
         if (i % 2 == 0) {
             value->partialSum += 1.0 / (i * 2.0 + 1.0);
-
         }
         else {
             value->partialSum -= 1.0 / (i * 2.0 + 1.0);
