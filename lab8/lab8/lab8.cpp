@@ -40,7 +40,7 @@ int parsingInputArguments(int argc, char** argv, inputArguments* arguments) {
     if (countThread == STRING_TO_INT_FAILURE && strcmp(argv[1], "0") != COMPARISON_SUCCESS) {
         return inputArguments_VALUE_THREAD_NOT_NUMBER;
     }
-    if (countThread < 0 || countThread > MAX_THREAD) {
+    if (countThread <= 0 || countThread > MAX_THREAD) {
         return inputArguments_WRONG_COUNT_THREAD;
     }
     arguments->countThread = countThread;
@@ -49,7 +49,7 @@ int parsingInputArguments(int argc, char** argv, inputArguments* arguments) {
     if (countIterations == STRING_TO_INT_FAILURE && strcmp(argv[2], "0") != COMPARISON_SUCCESS) {
         return inputArguments_VALUE_INTERATIONS_NOT_NUMBER;
     }
-    if (countIterations < 0 || countIterations > MAX_ITERATIONS) {
+    if (countIterations <= 0 || countIterations > MAX_ITERATIONS) {
         return inputArguments_WRONG_COUNT_ITERATIONS;
     }
     arguments->countIterations = countIterations;
