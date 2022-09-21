@@ -6,7 +6,7 @@
 #define RIGHT_NUMBER_ARGUMENTS 3
 #define STRING_TO_INT_FAILURE 0
 #define COMPARISON_SUCCESS 0
-#define MAX_THREAD 1024
+#define MAX_THREAD 512
 #define MAX_ITERATIONS INT_MAX
 #define CREATE_SUCCESS 0 
 #define JOIN_SUCCESS 0
@@ -113,6 +113,7 @@ void threadError(int valueError, const char* msg) {
 void* calculatePartialSum(void* args) {
     argumentsForFunctionInThread* value = (argumentsForFunctionInThread*)args;
     for (int i = value->startIteration; i < value->endIteration; ++i) {
+        printf("thread %d\n", i);
         if (i % 2 == 0) {
             value->partialSum += 1.0 / (i * 2.0 + 1.0);
         }
