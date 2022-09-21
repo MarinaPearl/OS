@@ -113,7 +113,6 @@ void threadError(int valueError, const char* msg) {
 void* calculatePartialSum(void* args) {
     argumentsForFunctionInThread* value = (argumentsForFunctionInThread*)args;
     for (int i = value->startIteration; i < value->endIteration; ++i) {
-        printf("thread %d\n", i);
         if (i % 2 == 0) {
             value->partialSum += 1.0 / (i * 2.0 + 1.0);
         }
