@@ -74,6 +74,9 @@ void inputError(int code) {
     case inputArguments_WRONG_COUNT_ITERATIONS:
         fprintf(stderr, "Error : number of iterations entered incorrectly\n");
         break;
+    default:
+        fprintf(stderr, "Error : error not found\n");
+        break;
     }
     exit(EXIT_FAILURE);
 }
