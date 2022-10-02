@@ -52,7 +52,7 @@ int checkInputArguments(int argc, char** argv, inputArguments* arguments) {
     }
     arguments->countThread = countThread;
 
-    int countIterations = atoi(argv[2]);
+    long long countIterations = strToInt(argv[2]);
     if (countIterations == STRING_TO_INT_FAILURE && strcmp(argv[2], "0") != COMPARISON_SUCCESS) {
         return inputArguments_VALUE_INTERATIONS_NOT_NUMBER;
     }
@@ -172,6 +172,8 @@ void calculatePI(inputArguments args) {
 }
 
 int main(int argc, char** argv) {
+    printf("Please, enter the number of threads:\n");
+    printf("Please, enter the number of iterations:\n");
     inputArguments args;
     int code = checkInputArguments(argc, argv, &args);
     if (code != inputArguments_SUCCESS) {
