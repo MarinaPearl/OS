@@ -70,7 +70,7 @@ int checkInputArguments(int argc, char** argv, inputArguments* arguments) {
 void printErrorOfInputArgsAndTerminateProgram(int code) {
     switch (code) {
         case inputArguments_WRONG_COUNT_OF_ARGUMENTS:
-             fprintf(stderr, "%ld", "Please, enter two arguments : \n the frist argument is the number of threads from 1 to 512 \n  the second argument is the number of iterations from 1 to ", INT_MAX, "\n");
+             fprintf(stderr, "Please, enter two arguments : \n the frist argument is the number of threads from 1 to 512 \n  the second argument is the number of iterations from 1 to %d\n", INT_MAX);
              break;
         case inputArguments_VALUE_THREAD_NOT_NUMBER:
              fprintf(stderr, "Error : the frist argument is the number of threads is not a number. The correct valuefrom if from 1 to 512\n");
@@ -79,10 +79,10 @@ void printErrorOfInputArgsAndTerminateProgram(int code) {
              fprintf(stderr, "Error : the frist argument is the number of threads entered incorrectly. The correct valuefrom if from 1 to 512\n");
              break;
         case inputArguments_VALUE_INTERATIONS_NOT_NUMBER:
-             fprintf(stderr, "%ld", "Error : the second argument is the number of iterations is not a number. The correct valuefrom if from 1 to", INT_MAX, "\n");
+             fprintf(stderr, "Error : the second argument is the number of iterations is not a number. The correct valuefrom if from 1 to %d\n", INT_MAX);
              break;
         case inputArguments_WRONG_COUNT_ITERATIONS:
-             fprintf(stderr, "%ld", "Error : the second argument is the number of iterations entered incorrectly. The correct valuefrom if from 1 to", INT_MAX, "\n");
+             fprintf(stderr, "Error : the second argument is the number of iterations entered incorrectly. The correct valuefrom if from 1 to %d\n", INT_MAX, "\n");
              break;
         default:
              fprintf(stderr, "Error : error not found\n");
@@ -133,17 +133,18 @@ void* calculatePartialSum(void* args) {
     pthread_exit(&value->partialSum);
 }
 
-void releaseResources(int firstThread, int lastThread, pthread_t* ntid, char* msg) {
+void releaseResources(int firstThread, int lastThread, pthread_t* ntid, char* msg, int err) {
+    void* resultInThread;
     for (int i = firstThread; i < lastThread; ++i) {
-        int err = pthread_join(ntid[i], &resultInThread);
-        if (err != JOIN_SUCCESS) {
-            releaseResources(i + 1, lastThread, ntid, msg);
+        int code = pthread_join(ntid[i], &resultInThread);
+        if (code != JOIN_SUCCESS) {
+            releaseResources(i + 1, lastThread, ntid, msg, code);
         }
     }
     printErrorAndTerminate(err, msg);
 }
 
-void createThread(pthread_t* ntid, argumentsForFunctionInThread* array, inputArguments args) {
+void createThread(pthread_t* ntid, argumentsForFunctionInThread* array, inputArguments args, int err) {
     for (int i = 0; i < args.countThread; ++i) {
         int err = pthread_create(&ntid[i], NULL, calculatePartialSum, (void*)&array[i]);
         if (err != CREATE_SUCCESS) {
@@ -158,7 +159,7 @@ void addUpPartialSums(pthread_t* ntid, argumentsForFunctionInThread* array, inpu
     for (int i = 0; i < args.countThread; ++i) {
         int err = pthread_join(ntid[i], &resultInThread);
         if (err != JOIN_SUCCESS) {
-            releaseResources(i + 1, args.countThread, ntid, "Error: thread can not does join");
+            releaseResources(i + 1, args.countThread, ntid, "Error: thread can not does join", err);
         }
         *sum += *(double*)resultInThread;
     }
