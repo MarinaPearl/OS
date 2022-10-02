@@ -34,7 +34,7 @@ enum resultOfCheckInputArguments {
 
 long strToInt(char* str) {
     char* endptr;
-    long long value = strtoll(str, &endptr, 10);
+    long long value = strtol(str, &endptr, 10);
     if (*endptr != '\0') {
         return STRING_TO_INT_FAILURE;
     }
