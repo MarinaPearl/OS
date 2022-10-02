@@ -154,21 +154,21 @@ void calculatePI(inputArguments args) {
     distributeIterationsInToThreads(countIterationInOneThread, args);
 
     argumentsForFunctionInThread arrayArguments[args.countThread];
-    fillgGeneralArrayForFunctionInThread(arrayArguments, args, countIterationInOneThread);
+    fillGeneralArrayForFunctionInThread(arrayArguments, args, countIterationInOneThread);
 
     pthread_t ntid[args.countThread];
     createThread(ntid, arrayArguments, args);
 
     double pi = 0;
-    collectePartialSumm(ntid, arrayArguments, args, &pi);
+    calculatePartialSumm(ntid, arrayArguments, args, &pi);
     printPi(&pi);
 }
 
 int main(int argc, char** argv) {
     inputArguments args;
-    int code = parsingInputArguments(argc, argv, &args);
+    int code = checkInputArguments(argc, argv, &args);
     if (code != inputArguments_SUCCESS) {
-        inputError(code);
+        printErrorInputArgsAndTerminateProgram(code);
     }
     calculationPI(args);
     return EXIT_SUCCESS;
