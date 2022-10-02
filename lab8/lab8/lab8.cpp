@@ -82,7 +82,7 @@ void printErrorOfInputArgsAndTerminateProgram(int code) {
              fprintf(stderr, "Error : the second argument is the number of iterations is not a number. The correct valuefrom if from 1 to %d\n", INT_MAX);
              break;
         case inputArguments_WRONG_COUNT_ITERATIONS:
-             fprintf(stderr, "Error : the second argument is the number of iterations entered incorrectly. The correct valuefrom if from 1 to %d\n", INT_MAX, "\n");
+             fprintf(stderr, "Error : the second argument is the number of iterations entered incorrectly. The correct valuefrom if from 1 to %d\n", INT_MAX);
              break;
         default:
              fprintf(stderr, "Error : error not found\n");
@@ -144,11 +144,11 @@ void releaseResources(int firstThread, int lastThread, pthread_t* ntid, char* ms
     printErrorAndTerminate(err, msg);
 }
 
-void createThread(pthread_t* ntid, argumentsForFunctionInThread* array, inputArguments args, int err) {
+void createThread(pthread_t* ntid, argumentsForFunctionInThread* array, inputArguments args) {
     for (int i = 0; i < args.countThread; ++i) {
         int err = pthread_create(&ntid[i], NULL, calculatePartialSum, (void*)&array[i]);
         if (err != CREATE_SUCCESS) {
-            releaseResources(0, i, ntid, "Error : thread can not be created");
+            releaseResources(0, i, ntid, "Error : thread can not be created", err);
         }
     }
 }
