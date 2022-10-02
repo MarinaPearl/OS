@@ -171,9 +171,18 @@ void calculatePI(inputArguments args) {
     printPi(&pi);
 }
 
-int main(int argc, char** argv) {
-    printf("Please, enter the number of threads:\n");
-    printf("Please, enter the number of iterations:\n");
+void enterInputArguments(int* argc, char** argv) {
+    printf("Please, enter the number of threads and the number of iterations:\n");
+    int i = 0;
+    while (scanf("%s", &argv[i]) != EOF) {
+        ++i;
+    }
+    *argc = i;
+}
+int main() {
+    int argc;
+    char** argv;
+    enterInputArguments(&argc, argv);
     inputArguments args;
     int code = checkInputArguments(argc, argv, &args);
     if (code != inputArguments_SUCCESS) {
