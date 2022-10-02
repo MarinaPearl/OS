@@ -3,7 +3,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <limits.h>
-#define RIGHT_NUMBER_ARGUMENTS 3
+#define RIGHT_NUMBER_ARGUMENTS 2
 #define STRING_TO_INT_FAILURE 0
 #define COMPARISON_SUCCESS 0
 #define MAX_THREAD 512
