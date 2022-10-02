@@ -189,7 +189,7 @@ int main(int argc, char** argv) {
     inputArguments args;
     int code = checkInputArguments(argc, argv, &args);
     if (code != inputArguments_SUCCESS) {
-        printErrorInputArgsAndTerminateProgram(code);
+        printErrorOfInputArgsAndTerminateProgram(code);
     }
     calculatePI(args);
     return EXIT_SUCCESS;
