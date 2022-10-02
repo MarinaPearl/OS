@@ -70,16 +70,16 @@ void printErrorInputArgsAndTerminateProgram(int code) {
              fprintf(stderr, "Please, enter two arguments\n");
              break;
         case inputArguments_VALUE_THREAD_NOT_NUMBER:
-             fprintf(stderr, "Error : thread argument is not a number\n");
+             fprintf(stderr, "Error : the frist argument is the number of threads is not a number\n");
              break;
         case inputArguments_WRONG_COUNT_THREAD:
-             fprintf(stderr, "Error : number of threads entered incorrectly\n");
+             fprintf(stderr, "Error : the frist argument is the number of threads entered incorrectly\n");
              break;
         case inputArguments_VALUE_INTERATIONS_NOT_NUMBER:
-             fprintf(stderr, "Error : iteration argument is not a number\n");
+             fprintf(stderr, "Error : the second argument is the number of iterations is not a number\n");
              break;
         case inputArguments_WRONG_COUNT_ITERATIONS:
-             fprintf(stderr, "Error : number of iterations entered incorrectly\n");
+             fprintf(stderr, "Error : the second argument is the number of iterations entered incorrectly\n");
              break;
         default:
              fprintf(stderr, "Error : error not found\n");
