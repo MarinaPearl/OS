@@ -73,16 +73,16 @@ void printErrorOfInputArgsAndTerminateProgram(int code) {
              fprintf(stderr, "Please, enter two arguments : \nthe frist argument is the number of threads from 1 to 512 \nthe second argument is the number of iterations from 1 to %d\n", INT_MAX);
              break;
         case inputArguments_VALUE_THREAD_NOT_NUMBER:
-             fprintf(stderr, "Error : the frist argument is the number of threads is not a number. The correct valuefrom if from 1 to 512\n");
+             fprintf(stderr, "Error : the frist argument is the number of threads is not a number. The correct value from if from 1 to 512\n");
              break;
         case inputArguments_WRONG_COUNT_THREAD:
-             fprintf(stderr, "Error : the frist argument is the number of threads entered incorrectly. The correct valuefrom if from 1 to 512\n");
+             fprintf(stderr, "Error : the frist argument is the number of threads entered incorrectly. The correct value from if from 1 to 512\n");
              break;
         case inputArguments_VALUE_INTERATIONS_NOT_NUMBER:
-             fprintf(stderr, "Error : the second argument is the number of iterations is not a number. The correct valuefrom if from 1 to %d\n", INT_MAX);
+             fprintf(stderr, "Error : the second argument is the number of iterations is not a number. The correct value from if from 1 to %d\n", INT_MAX);
              break;
         case inputArguments_WRONG_COUNT_ITERATIONS:
-             fprintf(stderr, "Error : the second argument is the number of iterations entered incorrectly. The correct valuefrom if from 1 to %d\n", INT_MAX);
+             fprintf(stderr, "Error : the second argument is the number of iterations entered incorrectly. The correct value from if from 1 to %d\n", INT_MAX);
              break;
         default:
              fprintf(stderr, "Error : error not found\n");
