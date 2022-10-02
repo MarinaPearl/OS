@@ -31,6 +31,7 @@ enum resultOfCheckInputArguments {
     inputArguments_VALUE_INTERATIONS_NOT_NUMBER,
     inputArguments_WRONG_COUNT_ITERATIONS
 };
+
 long long strToInt(char* str) {
     char* endptr;
     long long value = strtoll(str, &endptr, 10);
@@ -39,6 +40,7 @@ long long strToInt(char* str) {
     }
     return value;
 }
+
 int checkInputArguments(int argc, char** argv, inputArguments* arguments) {
     if (argc != RIGHT_NUMBER_ARGUMENTS) {
         return inputArguments_WRONG_COUNT_OF_ARGUMENTS;
@@ -140,6 +142,7 @@ void releaseResources(int firstThread, int lastThread, pthread_t* ntid, char* ms
     }
     printErrorAndTerminate(err, msg);
 }
+
 void createThread(pthread_t* ntid, argumentsForFunctionInThread* array, inputArguments args) {
     for (int i = 0; i < args.countThread; ++i) {
         int err = pthread_create(&ntid[i], NULL, calculatePartialSum, (void*)&array[i]);
@@ -180,6 +183,7 @@ void calculatePI(inputArguments args) {
     addUpPartialSums(ntid, arrayArguments, args, &pi);
     printPi(&pi);
 }
+
 int main(int argc, char** argv) {
     inputArguments args;
     int code = checkInputArguments(argc, argv, &args);
