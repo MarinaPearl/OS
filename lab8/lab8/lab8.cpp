@@ -30,13 +30,20 @@ enum resultOfCheckInputArguments {
     inputArguments_VALUE_INTERATIONS_NOT_NUMBER,
     inputArguments_WRONG_COUNT_ITERATIONS
 };
-
+long long strToInt(char* str) {
+    char* endptr;
+    long long value = strtoll(str, &endptr, 10);
+    if (*endptr != '\0') {
+        return STRING_TO_INT_FAILURE;
+    }
+    return value;
+}
 int checkInputArguments(int argc, char** argv, inputArguments* arguments) {
     if (argc != RIGHT_NUMBER_ARGUMENTS) {
         return inputArguments_WRONG_COUNT_OF_ARGUMENTS;
     }
 
-    int countThread = atoi(argv[1]);
+    long long countThread = strToInt(argv[1]);
     if (countThread == STRING_TO_INT_FAILURE && strcmp(argv[1], "0") != COMPARISON_SUCCESS) {
         return inputArguments_VALUE_THREAD_NOT_NUMBER;
     }
