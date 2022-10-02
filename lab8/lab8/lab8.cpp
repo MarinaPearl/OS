@@ -70,7 +70,7 @@ int checkInputArguments(int argc, char** argv, inputArguments* arguments) {
 void printErrorOfInputArgsAndTerminateProgram(int code) {
     switch (code) {
         case inputArguments_WRONG_COUNT_OF_ARGUMENTS:
-             fprintf(stderr, "Please, enter two arguments : \n the frist argument is the number of threads from 1 to 512 \n  the second argument is the number of iterations from 1 to %d\n", INT_MAX);
+             fprintf(stderr, "Please, enter two arguments : \nthe frist argument is the number of threads from 1 to 512 \nthe second argument is the number of iterations from 1 to %d\n", INT_MAX);
              break;
         case inputArguments_VALUE_THREAD_NOT_NUMBER:
              fprintf(stderr, "Error : the frist argument is the number of threads is not a number. The correct valuefrom if from 1 to 512\n");
