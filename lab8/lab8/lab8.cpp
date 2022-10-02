@@ -3,7 +3,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <limits.h>
-#define RIGHT_NUMBER_ARGUMENTS 2
+#define RIGHT_NUMBER_ARGUMENTS 2la
 #define STRING_TO_INT_FAILURE 0
 #define COMPARISON_SUCCESS 0
 #define MAX_THREAD 512
@@ -67,7 +67,7 @@ int checkInputArguments(int argc, char** argv, inputArguments* arguments) {
 void printErrorInputArgsAndTerminateProgram(int code) {
     switch (code) {
         case inputArguments_WRONG_COUNT_OF_ARGUMENTS:
-             fprintf(stderr, "Error : introduced a wrong number of arguments\n");
+             fprintf(stderr, "Please, enter two arguments\n");
              break;
         case inputArguments_VALUE_THREAD_NOT_NUMBER:
              fprintf(stderr, "Error : thread argument is not a number\n");
@@ -170,19 +170,7 @@ void calculatePI(inputArguments args) {
     addPartialSums(ntid, arrayArguments, args, &pi);
     printPi(&pi);
 }
-
-void enterInputArguments(int* argc, char** argv) {
-    printf("Please, enter the number of threads and the number of iterations:\n");
-    int i = 0;
-    while (scanf("%s", &argv[i]) != EOF) {
-        ++i;
-    }
-    *argc = i;
-}
-int main() {
-    int argc;
-    char** argv;
-    enterInputArguments(&argc, argv);
+int main(int argc, char** argv) {
     inputArguments args;
     int code = checkInputArguments(argc, argv, &args);
     if (code != inputArguments_SUCCESS) {
