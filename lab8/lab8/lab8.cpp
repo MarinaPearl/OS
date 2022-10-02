@@ -160,7 +160,7 @@ void calculatePI(inputArguments args) {
     createThread(ntid, arrayArguments, args);
 
     double pi = 0;
-    calculatePartialSumm(ntid, arrayArguments, args, &pi);
+    calculatePartialSum(ntid, arrayArguments, args, &pi);
     printPi(&pi);
 }
 
@@ -170,6 +170,6 @@ int main(int argc, char** argv) {
     if (code != inputArguments_SUCCESS) {
         printErrorInputArgsAndTerminateProgram(code);
     }
-    calculationPI(args);
+    calculatePI(args);
     return EXIT_SUCCESS;
 }
