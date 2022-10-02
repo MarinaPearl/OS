@@ -64,22 +64,22 @@ int checkInputArguments(int argc, char** argv, inputArguments* arguments) {
     return inputArguments_SUCCESS;
 }
 
-void printErrorInputArgsAndTerminateProgram(int code) {
+void printErrorOfInputArgsAndTerminateProgram(int code) {
     switch (code) {
         case inputArguments_WRONG_COUNT_OF_ARGUMENTS:
-             fprintf(stderr, "Please, enter two arguments\n");
+             fprintf(stderr, "%ld", "Please, enter two arguments : \n the frist argument is the number of threads from 1 to 512 \n  the second argument is the number of iterations from 1 to ", INT_MAX, "\n");
              break;
         case inputArguments_VALUE_THREAD_NOT_NUMBER:
-             fprintf(stderr, "Error : the frist argument is the number of threads is not a number\n");
+             fprintf(stderr, "Error : the frist argument is the number of threads is not a number. The correct valuefrom if from 1 to 512\n");
              break;
         case inputArguments_WRONG_COUNT_THREAD:
-             fprintf(stderr, "Error : the frist argument is the number of threads entered incorrectly\n");
+             fprintf(stderr, "Error : the frist argument is the number of threads entered incorrectly. The correct valuefrom if from 1 to 512\n");
              break;
         case inputArguments_VALUE_INTERATIONS_NOT_NUMBER:
-             fprintf(stderr, "Error : the second argument is the number of iterations is not a number\n");
+             fprintf(stderr, "%ld", "Error : the second argument is the number of iterations is not a number. The correct valuefrom if from 1 to", INT_MAX, "\n");
              break;
         case inputArguments_WRONG_COUNT_ITERATIONS:
-             fprintf(stderr, "Error : the second argument is the number of iterations entered incorrectly\n");
+             fprintf(stderr, "%ld", "Error : the second argument is the number of iterations entered incorrectly. The correct valuefrom if from 1 to", INT_MAX, "\n");
              break;
         default:
              fprintf(stderr, "Error : error not found\n");
@@ -112,7 +112,7 @@ void fillGeneralArrayForFunctionInThread(argumentsForFunctionInThread* array, in
     }
 }
 
-void threadError(int valueError, const char* msg) {
+void printErrorAndTerminate(int valueError, char* msg) {
     fprintf(stderr, "%s cause : %s\n", msg, strerror(valueError));
     exit(EXIT_FAILURE);
 }
@@ -130,22 +130,31 @@ void* calculatePartialSum(void* args) {
     pthread_exit(&value->partialSum);
 }
 
+void releaseResources(int firstThread, int lastThread, pthread_t* ntid, char* msg) {
+    for (int i = firstThread; i < lastThread; ++i) {
+        int err = pthread_join(ntid[i], &resultInThread);
+        if (err != JOIN_SUCCESS) {
+            releaseResources(i + 1, lastThread, ntid, msg);
+        }
+    }
+    printErrorAndTerminate(err, msg);
+}
 void createThread(pthread_t* ntid, argumentsForFunctionInThread* array, inputArguments args) {
     for (int i = 0; i < args.countThread; ++i) {
         int err = pthread_create(&ntid[i], NULL, calculatePartialSum, (void*)&array[i]);
         if (err != CREATE_SUCCESS) {
-            threadError(err, "unable to create thread");
+            releaseResources(0, i, ntid, "Error : thread can not be created");
         }
     }
 }
 
-void addPartialSums(pthread_t* ntid, argumentsForFunctionInThread* array, inputArguments args, double* sum) {
+void addUpPartialSums(pthread_t* ntid, argumentsForFunctionInThread* array, inputArguments args, double* sum) {
     *sum = 0;
     void* resultInThread;
     for (int i = 0; i < args.countThread; ++i) {
         int err = pthread_join(ntid[i], &resultInThread);
         if (err != JOIN_SUCCESS) {
-            threadError(err, "error while waiting for thread");
+            releaseResources(i + 1, args.countThread, ntid, "Error: thread can not does join");
         }
         *sum += *(double*)resultInThread;
     }
@@ -153,7 +162,7 @@ void addPartialSums(pthread_t* ntid, argumentsForFunctionInThread* array, inputA
 }
 
 void printPi(double* pi) {
-    fprintf(stdout, "pi = %.20f\n", *pi);
+    fprintf(stdout, "pi = %.15f\n", *pi);
 }
 
 void calculatePI(inputArguments args) {
@@ -167,7 +176,7 @@ void calculatePI(inputArguments args) {
     createThread(ntid, arrayArguments, args);
 
     double pi = 0;
-    addPartialSums(ntid, arrayArguments, args, &pi);
+    addUpPartialSums(ntid, arrayArguments, args, &pi);
     printPi(&pi);
 }
 int main(int argc, char** argv) {
