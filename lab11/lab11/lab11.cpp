@@ -78,7 +78,7 @@ void* printTextInThread(void* args) {
     for (int i = 0; i < value->count; ++i) {
         nextMutex = (thisMutex + 1) % COUNT_MUTEX;
         lockMutex(nextMutex);
-        printf("%s\n", value->text);
+        printf("%d %s\n", i, value->text);
         unlockMutex(thisMutex);
         thisMutex = nextMutex;
     }
