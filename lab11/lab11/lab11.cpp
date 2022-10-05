@@ -34,10 +34,12 @@ void initializeMutexes() {
     if (code != SUCCESS) {
         printErrorAndTerminateProgram(code, "Mutex attributes could not be created");
     }
+
     code = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     if (code != SUCCESS) {
         printErrorAndTerminateProgram(code, "Mutex attribute type could not be set");
     }
+
     for (int i = 0; i < COUNT_MUTEX; ++i) {
         code = pthread_mutex_init(&arrayMutex[i], &attr);
         if (code != SUCCESS) {
@@ -56,7 +58,7 @@ void lockMutex(int i) {
 }
 
 void unlockMutex(int i) {
-    int code = pthread_mutex_lock(&arrayMutex[i]);
+    int code = pthread_mutex_unlock(&arrayMutex[i]);
     if (code != SUCCESS) {
         destroyMutexes(COUNT_MUTEX);
         printErrorAndTerminateProgram(code, "mutex could not do unlock");
@@ -80,7 +82,6 @@ void* printTextInThread(void* args) {
         thisMutex = nextMutex;
     }
     unlockMutex(thisMutex);
-    ready = false;
     return NULL;
 }
 
@@ -90,12 +91,14 @@ int main() {
     argumetsForFunctionInThread newThread = { "Hello, I'm new thread\n", 10 };
     argumetsForFunctionInThread mainThread = { "Hello, I'm main thread\n", 10 };
     lockMutex(0);
+
     int err = pthread_create(&ntid, NULL, printTextInThread, (void*)&newThread);
     if (err != SUCCESS) {
+        unlockMutex(0);
         destroyMutexes(COUNT_MUTEX);
         printErrorAndTerminateProgram(err, "unable to create thread");
     }
-    while (ready) {};
+    while (ready != true) {};
 
     printTextInThread((void*)&mainThread);
     
