@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <pthread.h> 
 #include <string.h>
+#include <stdbool.h>
 
 #define SUCCESS 0
 #define COUNT_MUTEX 3
