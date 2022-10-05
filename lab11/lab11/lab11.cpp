@@ -99,7 +99,6 @@ int main() {
 
     printTextInThread((void*)&mainThread);
     
-    
     err = pthread_join(ntid, NULL);
     if (err != SUCCESS) {
         destroyMutexes(COUNT_MUTEX);
