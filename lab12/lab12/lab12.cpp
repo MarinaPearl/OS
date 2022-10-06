@@ -104,6 +104,9 @@ void* printChild(void* args) {
     printf("%s\n", value->text);
     unlockMutex(0);
     unlockMutex(1);
+    lockMutex(1);
+    printf("%s\n", value->text);
+    unlockMutex(1);
     return NULL;
 }
 
