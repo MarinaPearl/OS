@@ -5,9 +5,9 @@
 #include <stdbool.h>
 
 #define SUCCESS 0
-#define COUNT_MUTEX 3
+#define COUNT_MUTEXES 3
 
-pthread_mutex_t arrayMutex[COUNT_MUTEX];
+pthread_mutex_t arrayMutex[COUNT_MUTEXES];
 bool ready = false;
 
 typedef struct argumentsForFunction {
@@ -41,7 +41,7 @@ void initializeMutexes() {
         printErrorAndTerminateProgram(code, "Mutex attribute type could not be set");
     }
 
-    for (int i = 0; i < COUNT_MUTEX; ++i) {
+    for (int i = 0; i < COUNT_MUTEXES; ++i) {
         code = pthread_mutex_init(&arrayMutex[i], &attr);
         if (code != SUCCESS) {
             destroyMutexes(i);
@@ -53,7 +53,7 @@ void initializeMutexes() {
 void lockMutex(int i) {
     int code = pthread_mutex_lock(&arrayMutex[i]);
     if (code != SUCCESS) {
-        destroyMutexes(COUNT_MUTEX);
+        destroyMutexes(COUNT_MUTEXES);
         printErrorAndTerminateProgram(code, "mutex could not do lock");
     }
 }
@@ -61,7 +61,7 @@ void lockMutex(int i) {
 void unlockMutex(int i) {
     int code = pthread_mutex_unlock(&arrayMutex[i]);
     if (code != SUCCESS) {
-        destroyMutexes(COUNT_MUTEX);
+        destroyMutexes(COUNT_MUTEXES);
         printErrorAndTerminateProgram(code, "mutex could not do unlock");
     }
 }
@@ -76,7 +76,7 @@ void* printTextInThread(void* args) {
         ready = true;
     }
     for (int i = 0; i < value->count; ++i) {
-        nextMutex = (thisMutex + 1) % COUNT_MUTEX;
+        nextMutex = (thisMutex + 1) % COUNT_MUTEXES;
         lockMutex(nextMutex);
         printf("%d %s\n", i, value->text);
         unlockMutex(thisMutex);
@@ -96,7 +96,7 @@ int main() {
     int err = pthread_create(&ntid, NULL, printTextInThread, (void*)&newThread);
     if (err != SUCCESS) {
         unlockMutex(0);
-        destroyMutexes(COUNT_MUTEX);
+        destroyMutexes(COUNT_MUTEXES);
         printErrorAndTerminateProgram(err, "unable to create thread");
     }
     while (ready != true) {};
@@ -105,10 +105,10 @@ int main() {
     
     err = pthread_join(ntid, NULL);
     if (err != SUCCESS) {
-        destroyMutexes(COUNT_MUTEX);
+        destroyMutexes(COUNT_MUTEXES);
         printErrorAndTerminateProgram(err, "error in the join function");
     }
 
-    destroyMutexes(COUNT_MUTEX);
+    destroyMutexes(COUNT_MUTEXES);
     return EXIT_SUCCESS;
 }
