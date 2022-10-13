@@ -14,7 +14,7 @@ typedef struct argumentsForFunction {
     int start;
 } argumetsForFunctionInThread;
 
-int error_check(int code, char* inscription) {
+int errorCheck(int code, char* inscription) {
     if (code != SUCCESS) {
         perror(inscription);
         return code;
