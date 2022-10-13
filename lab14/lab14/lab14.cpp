@@ -26,6 +26,10 @@ int errorCheck(int code, char* inscription) {
 
 int destroySems(int number) {
     for (int i = 0; i < number; i++) {
+        errno = sem_post(&sems[num]);
+        if (errorCheck(errno, "Semaphore post error") != SUCCESS) {
+            return errno;
+        }
         errno = sem_destroy(&sems[i]);
         if (errorCheck(errno, "Destroying semaphore error") != SUCCESS) {
             return errno;
