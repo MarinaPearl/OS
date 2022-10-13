@@ -86,8 +86,8 @@ void* printTextInThread(void* args) {
 
 int main(int argc, char* argv[]) {
     pthread_t thread;
-    argumetsForFunctionInThread newThread = { "Hello, I'm new thread\n", 10, 1};
-    argumetsForFunctionInThread mainThread = { "Hello, I'm main thread\n", 10, 0};
+    argumetsForFunctionInThread newThread = { "Hello, I'm new thread", 10, 1};
+    argumetsForFunctionInThread mainThread = { "Hello, I'm main thread", 10, 0};
     errno = initializeSems();
     if (errno != SUCCESS) {
         exit(errno);
