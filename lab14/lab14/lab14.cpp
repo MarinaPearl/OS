@@ -2,6 +2,8 @@
 #include <string.h>
 #include <errno.h>
 #include <semaphore.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define SUCCESS 0
 #define NUMBER_OF_SEMAPHORES 2
