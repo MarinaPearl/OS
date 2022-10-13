@@ -59,20 +59,20 @@ int semaphorePost(int num) {
 }
 
 void* printTextInThread(void* param) {
-    Data data = *(Data*)param;
+    argumetsForFunctionInThread* value = (argumetsForFunctionInThread*)args;
     errno = SUCCESS;
     int this_sem = 0,
         next_sem = 0;
 
-    for (int i = 0; i < NUMBER_OF_LINES; i++) {
-        this_sem = (data.num_queue + 1) % NUMBER_OF_SEMAPHORES;
+    for (int i = 0; i < value->count; i++) {
+        this_sem = (value->start + 1) % NUMBER_OF_SEMAPHORES;
         next_sem = (this_sem + 1) % NUMBER_OF_SEMAPHORES;
         errno = semaphore_wait(this_sem);
         if (error_check(errno, "Semaphore wait error") != SUCCESS) {
             return NULL;
         }
 
-        printf("%s %d\n", data.str, i);
+        printf("%s %d\n", value->text, i);
 
         errno = semaphore_post(next_sem);
         if (error_check(errno, "Semaphore post error") != SUCCESS) {
