@@ -8,9 +8,9 @@
 #define SUCCESS 0
 #define FAILURE 1
 
-pthread_mutex_t mutex;
-bool flag = true;
-bool stop = true;
+pthread_mutex_t MUTEX;
+bool LIST_WORK = true;
+bool STOP = true;
 
 typedef struct Node {
     char* text;
@@ -44,7 +44,7 @@ void printError(int valueError, char* msg) {
 }
 
 int destroyMutexes() {
-    int code = pthread_mutex_destroy(&mutex);
+    int code = pthread_mutex_destroy(&MUTEX);
     if (code != SUCCESS) {
         printError(code, "Mutex could not  be destroy");
         return FAILURE;
@@ -53,7 +53,7 @@ int destroyMutexes() {
 }
 
 int lockMutex() {
-    int code = pthread_mutex_lock(&mutex);
+    int code = pthread_mutex_lock(&MUTEX);
     if (code != SUCCESS) {
         printError(code, "Mutex could not do lock");
         return FAILURE;
@@ -62,7 +62,7 @@ int lockMutex() {
 }
 
 int unlockMutex() {
-    int code = pthread_mutex_unlock(&mutex);
+    int code = pthread_mutex_unlock(&MUTEX);
     if (code != SUCCESS) {
         printError(code, "Mutex could not do unlock");
         return FAILURE;
@@ -114,17 +114,17 @@ void printList(Node** head) {
 }
 
 int enterLines(char* value) {
-    if (stop == true) {
+    if (STOP == true) {
         printf("Please, enter the line! To stop the program, enter 'end'. Press 'Enter' to print the list.\n");
     }
     if (fgets(value, 80, stdin) == NULL) {
         return FAILURE;
     }
     if (strlen(value) == 79 && value[79] != '\n') {
-        stop = false;
+        STOP = false;
     }
     else {
-        stop = true;
+        STOP = true;
     }
     if (value[0] != '\n') {
         if (strchr(value, '\n') != NULL) {
@@ -148,7 +148,7 @@ void initializeMutexes() {
         exit(EXIT_FAILURE);
     }
 
-    code = pthread_mutex_init(&mutex, &attr);
+    code = pthread_mutex_init(&MUTEX, &attr);
     if (code != SUCCESS) {
         printError(code, "Mutex init error");
         exit(EXIT_FAILURE);
@@ -169,7 +169,7 @@ void sortList(Node** head) {
 
 void* waitSort(void* head) {
     Node** value = (Node**)head;
-    while (flag) {
+    while (LIST_WORK == true) {
         sleep(5);
         int code = lockMutex();
         if (code != SUCCESS) {
@@ -199,7 +199,7 @@ int checkOperations(char* value) {
 }
 
 void doOperationWithList(char* value, Node** head) {
-    while (flag == true) {
+    while (LIST_WORK == true) {
         int code = enterLines(value);
         if (code != SUCCESS) {
             destroyMutexes();
@@ -214,7 +214,7 @@ void doOperationWithList(char* value, Node** head) {
                 push(head, value);
                 break;
             case stopWorkingList:
-                flag = false;
+                LIST_WORK = false;
                 break;
         }
     }
