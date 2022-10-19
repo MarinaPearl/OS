@@ -10,6 +10,7 @@
 
 pthread_mutex_t mutex;
 bool flag = true;
+bool stop = true;
 
 typedef struct Node {
     char* text;
@@ -113,9 +114,17 @@ void printList(Node** head) {
 }
 
 int enterLines(char* value) {
-    printf("Please, enter the line! To stop the program, enter 'end'. Press 'Enter' to print the list.\n");
+    if (stop == true) {
+        printf("Please, enter the line! To stop the program, enter 'end'. Press 'Enter' to print the list.\n");
+    }
     if (fgets(value, 80, stdin) == NULL) {
         return FAILURE;
+    }
+    if (strlen(value) == 79 && value[79] != '\n') {
+        stop = false;
+    }
+    else {
+        stop = true;
     }
     if (value[0] != '\n') {
         if (strchr(value, '\n') != NULL) {
