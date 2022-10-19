@@ -1,5 +1,4 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
@@ -7,44 +6,77 @@
 #include <unistd.h>
 
 #define SUCCESS 0
+#define FAILURE 1
 
 pthread_mutex_t mutex;
+bool flag = true;
 
 typedef struct Node {
     char* text;
     struct Node* next;
 } Node;
 
+enum listOperations {
+    outputList,
+    pushingInList,
+    stopWorkingList
+};
+
+void deleteList(Node** head) {
+    Node* prev = NULL;
+    if ((*head) != NULL) {
+        while ((*head)->next) {
+            prev = (*head);
+            (*head) = (*head)->next;
+            free(prev->text);
+            free(prev);
+        }
+        free((*head)->text);
+        free(*head);
+    }
+}
+
 void printErrorAndTerminateProgram(int valueError, char* msg) {
-    fprintf(stderr, "%s cause : %s\n", msg, strerror(valueError));
+    char buf[1024];
+    strerror_r(valueError, buf, sizeof(buf));
+    fprintf(stderr, "%s cause : %s\n", msg, buf);
     exit(EXIT_FAILURE);
 }
 
-void destroyMutexes() {
+int destroyMutexes() {
     int code = pthread_mutex_destroy(&mutex);
     if (code != SUCCESS) {
-        printErrorAndTerminateProgram(code, "mutex could not  be destroy");
+        printErrorAndTerminateProgram(code, "Mutex could not  be destroy");
+        return FAILURE;
     }
+    return SUCCESS;
 }
 
-void lockMutex() {
+int lockMutex() {
     int code = pthread_mutex_lock(&mutex);
     if (code != SUCCESS) {
-        destroyMutexes();
-        printErrorAndTerminateProgram(code, "mutex could not do lock");
+        printErrorAndTerminateProgram(code, "Mutex could not do lock");
+        return FAILURE;
+
     }
+    return SUCCESS;
 }
 
-void unlockMutex() {
+int unlockMutex() {
     int code = pthread_mutex_unlock(&mutex);
     if (code != SUCCESS) {
-        destroyMutexes();
-        printErrorAndTerminateProgram(code, "mutex could not do unlock");
+        printErrorAndTerminateProgram(code, "Mutex could not do unlock");
+        return FAILURE;
     }
+    return SUCCESS;
 }
 
-void push(Node** tmp, char* text) {
-    lockMutex();
+int  push(Node** tmp, char* text) {
+    int code = lockMutex();
+    if (code != SUCCESS) {
+        destroyMutexes();
+        deleteList(tmp);
+    }
     Node* newList = (Node*)malloc(sizeof(Node));
     newList->text = (char*)malloc(sizeof(char) * strlen(text));
     for (int i = 0; i < strlen(text); ++i) {
@@ -52,24 +84,43 @@ void push(Node** tmp, char* text) {
     }
     newList->next = *tmp;
     *tmp = newList;
-    unlockMutex();
+    code = unlockMutex();
+    if (code != SUCCESS) {
+        destroyMutexes();
+        deleteList(tmp);
+    }
 }
 
-void printList(Node* head) {
-    lockMutex();
-    while (head) {
-        printf("%s", head->text);
-        head = head->next;
+void printList(Node** head) {
+    int code = lockMutex();
+    if (code != SUCCESS) {
+        destroyMutexes();
+        deleteList(head);
+    }
+    Node* value = *head;
+    while (value) {
+        printf("%s\n", (value)->text);
+        (value) = (value)->next;
     }
     printf("\n");
-    unlockMutex();
+    code = unlockMutex();
+    if (code != SUCCESS) {
+        destroyMutexes();
+        deleteList(head);
+    }
 }
 
-void enterLines(char* value) {
-    printf("Please, enter the line\n");
+int enterLines(char* value) {
+    printf("Please, enter the line! To stop the program, enter 'end'. Press 'Enter' to print the list.\n");
     if (fgets(value, 80, stdin) == NULL) {
-        exit(0);
+        return FAILURE;
     }
+    if (value[0] != '\n') {
+        if (strchr(value, '\n') != NULL) {
+            *strchr(value, '\n') = '\0';
+        }
+    }
+    return SUCCESS;
 }
 
 void initializeMutexes() {
@@ -86,14 +137,12 @@ void initializeMutexes() {
 
     code = pthread_mutex_init(&mutex, &attr);
     if (code != SUCCESS) {
-        destroyMutexes();
         printErrorAndTerminateProgram(code, "Mutex init error");
     }
 }
 
-void sortList(Node* head) {
-    lockMutex();
-    for (Node* p = head; p != NULL; p = p->next) {
+void sortList(Node** head) {
+    for (Node* p = *head; p != NULL; p = p->next) {
         for (Node* tmp = p; tmp->next != NULL; tmp = tmp->next) {
             if (strcmp(tmp->text, tmp->next->text) > 0) {
                 char* value = tmp->text;
@@ -102,16 +151,56 @@ void sortList(Node* head) {
             }
         }
     }
-    unlockMutex();
 }
 
 void* waitSort(void* head) {
     Node** value = (Node**)head;
-    while (1) {
+    while (flag) {
         sleep(5);
-        sortList(*value);
+        int code = lockMutex();
+        if (code != SUCCESS) {
+            destroyMutexes();
+            deleteList(value);
+        }
+        sortList(value);
+        code = unlockMutex();
+        if (code != SUCCESS) {
+            destroyMutexes();
+            deleteList(value);
+        }
     }
     return NULL;
+}
+
+int checkOperations(char* value) {
+    if (value[0] == '\n') {
+        return outputList;
+    }
+    if (strcmp(value, "end") == 0) {
+        return stopWorkingList;
+    }
+    return pushingInList;
+}
+
+void doOperationWithList(char* value, Node** head) {
+    while (flag == true) {
+        int code = enterLines(value);
+        if (code != SUCCESS) {
+            destroyMutexes();
+            deleteList(head);
+        }
+        switch (checkOperations(value)) {
+            case outputList:
+                printList(head);
+                break;
+            case pushingInList:
+                push(head, value);
+                break;
+            case stopWorkingList:
+                flag = false;
+                break;
+        }
+    }
 }
 
 int main(int argc, char** argv) {
@@ -122,17 +211,19 @@ int main(int argc, char** argv) {
     int err = pthread_create(&ntid, NULL, waitSort, (void*)&head);
     if (err != SUCCESS) {
         destroyMutexes();
-        printErrorAndTerminateProgram(err, "unable to create thread");
-    }
-    while (true)
-    {
-        enterLines(value);
-        if (value[0] == '\n')
-            printList(head);
-        else {
-            push(&head, value);
-        }
+        printErrorAndTerminateProgram(err, "Unable to create thread");
     }
 
+    doOperationWithList(value, &head);
+
+    err = pthread_join(ntid, NULL);
+    if (err != SUCCESS) {
+        deleteList(&head);
+        destroyMutexes();
+        printErrorAndTerminateProgram(err, "Error in the join function");
+    }
+
+    destroyMutexes();
+    deleteList(&head);
     return EXIT_SUCCESS;
 }
