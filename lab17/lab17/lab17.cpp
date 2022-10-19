@@ -36,17 +36,16 @@ void deleteList(Node** head) {
     }
 }
 
-void printErrorAndTerminateProgram(int valueError, char* msg) {
+void printError(int valueError, char* msg) {
     char buf[1024];
     strerror_r(valueError, buf, sizeof(buf));
     fprintf(stderr, "%s cause : %s\n", msg, buf);
-    exit(EXIT_FAILURE);
 }
 
 int destroyMutexes() {
     int code = pthread_mutex_destroy(&mutex);
     if (code != SUCCESS) {
-        printErrorAndTerminateProgram(code, "Mutex could not  be destroy");
+        printError(code, "Mutex could not  be destroy");
         return FAILURE;
     }
     return SUCCESS;
@@ -55,9 +54,8 @@ int destroyMutexes() {
 int lockMutex() {
     int code = pthread_mutex_lock(&mutex);
     if (code != SUCCESS) {
-        printErrorAndTerminateProgram(code, "Mutex could not do lock");
+        printError(code, "Mutex could not do lock");
         return FAILURE;
-
     }
     return SUCCESS;
 }
@@ -65,17 +63,18 @@ int lockMutex() {
 int unlockMutex() {
     int code = pthread_mutex_unlock(&mutex);
     if (code != SUCCESS) {
-        printErrorAndTerminateProgram(code, "Mutex could not do unlock");
+        printError(code, "Mutex could not do unlock");
         return FAILURE;
     }
     return SUCCESS;
 }
 
-int  push(Node** tmp, char* text) {
+int push(Node** tmp, char* text) {
     int code = lockMutex();
     if (code != SUCCESS) {
         destroyMutexes();
         deleteList(tmp);
+        exit(EXIT_FAILURE);
     }
     Node* newList = (Node*)malloc(sizeof(Node));
     newList->text = (char*)malloc(sizeof(char) * strlen(text));
@@ -88,6 +87,7 @@ int  push(Node** tmp, char* text) {
     if (code != SUCCESS) {
         destroyMutexes();
         deleteList(tmp);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -96,6 +96,7 @@ void printList(Node** head) {
     if (code != SUCCESS) {
         destroyMutexes();
         deleteList(head);
+        exit(EXIT_FAILURE);
     }
     Node* value = *head;
     while (value) {
@@ -107,6 +108,7 @@ void printList(Node** head) {
     if (code != SUCCESS) {
         destroyMutexes();
         deleteList(head);
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -127,17 +129,20 @@ void initializeMutexes() {
     pthread_mutexattr_t attr;
     int code = pthread_mutexattr_init(&attr);
     if (code != SUCCESS) {
-        printErrorAndTerminateProgram(code, "Mutex attributes could not be created");
+        printError(code, "Mutex attributes could not be created");
+        exit(EXIT_FAILURE);
     }
 
     code = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     if (code != SUCCESS) {
-        printErrorAndTerminateProgram(code, "Mutex attribute type could not be set");
+        printError(code, "Mutex attribute type could not be set");
+        exit(EXIT_FAILURE);
     }
 
     code = pthread_mutex_init(&mutex, &attr);
     if (code != SUCCESS) {
-        printErrorAndTerminateProgram(code, "Mutex init error");
+        printError(code, "Mutex init error");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -161,12 +166,14 @@ void* waitSort(void* head) {
         if (code != SUCCESS) {
             destroyMutexes();
             deleteList(value);
+            exit(EXIT_FAILURE);
         }
         sortList(value);
         code = unlockMutex();
         if (code != SUCCESS) {
             destroyMutexes();
             deleteList(value);
+            exit(EXIT_FAILURE);
         }
     }
     return NULL;
@@ -188,6 +195,7 @@ void doOperationWithList(char* value, Node** head) {
         if (code != SUCCESS) {
             destroyMutexes();
             deleteList(head);
+            exit(EXIT_FAILURE);
         }
         switch (checkOperations(value)) {
             case outputList:
@@ -211,7 +219,8 @@ int main(int argc, char** argv) {
     int err = pthread_create(&ntid, NULL, waitSort, (void*)&head);
     if (err != SUCCESS) {
         destroyMutexes();
-        printErrorAndTerminateProgram(err, "Unable to create thread");
+        printError(err, "Unable to create thread");
+        exit(EXIT_FAILURE);
     }
 
     doOperationWithList(value, &head);
@@ -220,7 +229,8 @@ int main(int argc, char** argv) {
     if (err != SUCCESS) {
         deleteList(&head);
         destroyMutexes();
-        printErrorAndTerminateProgram(err, "Error in the join function");
+        printError(err, "Error in the join function");
+        exit(EXIT_FAILURE);
     }
 
     destroyMutexes();
