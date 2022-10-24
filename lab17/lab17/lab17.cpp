@@ -113,14 +113,14 @@ void printList(Node** head) {
     }
 }
 
-int enterLines(char* value) {
+int enterLines(char value[80]) {
     if (STOP == true) {
         printf("Please, enter the line! To stop the program, enter 'end'. Press 'Enter' to print the list.\n");
     }
-    if (fgets(value, 80, stdin) == NULL) {
+    if (fgets(value, 81, stdin) == NULL) {
         return FAILURE;
     }
-    if (strlen(value) == 79 && value[79] != '\n') {
+    if (strlen(value) == 80 && value[79] != '\n') {
         STOP = false;
     }
     else {
