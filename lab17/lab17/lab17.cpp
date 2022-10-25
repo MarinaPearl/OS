@@ -7,6 +7,7 @@
 
 #define SUCCESS 0
 #define FAILURE 1
+#define END_OF_READING 2
 
 pthread_mutex_t MUTEX;
 bool LIST_WORK = true;
@@ -20,7 +21,8 @@ typedef struct Node {
 enum listOperations {
     outputList,
     pushingInList,
-    stopWorkingList
+    stopWorkingList,
+    ignoringSymbol
 };
 
 void deleteList(Node** head) {
@@ -52,6 +54,12 @@ int destroyMutexes() {
     return SUCCESS;
 }
 
+void cleanResourcesAndAbortProgram(Node** head) {
+    destroyMutexes();
+    deleteList(head);
+    exit(EXIT_FAILURE);
+}
+
 int lockMutex() {
     int code = pthread_mutex_lock(&MUTEX);
     if (code != SUCCESS) {
@@ -70,36 +78,31 @@ int unlockMutex() {
     return SUCCESS;
 }
 
-int push(Node** tmp, char* text) {
+int push(Node** head, char* text) {
     int code = lockMutex();
     if (code != SUCCESS) {
-        destroyMutexes();
-        deleteList(tmp);
-        exit(EXIT_FAILURE);
+        cleanResourcesAndAbortProgram(head);
     }
     Node* newList = (Node*)malloc(sizeof(Node));
     newList->text = (char*)malloc(sizeof(char) * strlen(text));
     for (int i = 0; i < strlen(text); ++i) {
         newList->text[i] = text[i];
     }
-    newList->next = *tmp;
-    *tmp = newList;
+    newList->next = *head;
+    *head = newList;
     code = unlockMutex();
     if (code != SUCCESS) {
-        destroyMutexes();
-        deleteList(tmp);
-        exit(EXIT_FAILURE);
+        cleanResourcesAndAbortProgram(head);
     }
 }
 
 void printList(Node** head) {
     int code = lockMutex();
     if (code != SUCCESS) {
-        destroyMutexes();
-        deleteList(head);
-        exit(EXIT_FAILURE);
+        cleanResourcesAndAbortProgram(head);
     }
     Node* value = *head;
+    printf("List:\n");
     while (value) {
         printf("%s\n", (value)->text);
         (value) = (value)->next;
@@ -107,24 +110,25 @@ void printList(Node** head) {
     printf("\n");
     code = unlockMutex();
     if (code != SUCCESS) {
-        destroyMutexes();
-        deleteList(head);
-        exit(EXIT_FAILURE);
+        cleanResourcesAndAbortProgram(head);
     }
 }
 
-int enterLines(char value[80]) {
-    if (STOP == true) {
-        printf("Please, enter the line! To stop the program, enter 'end'. Press 'Enter' to print the list.\n");
-    }
+int enterLines(char* value) {
     if (fgets(value, 81, stdin) == NULL) {
-        return FAILURE;
+        if (ferror(stdin) != SUCCESS) {
+            return FAILURE;
+        }
+        return END_OF_READING;
     }
-    if (strlen(value) == 80 && value[79] != '\n') {
-        STOP = false;
-    }
-    else {
+    if (STOP == false) {
+        if (value[0] == '\n') {
+            value[0] = '\0';
+        }
         STOP = true;
+    }
+    if (strlen(value) == 80) {
+        STOP = false;
     }
     if (value[0] != '\n') {
         if (strchr(value, '\n') != NULL) {
@@ -173,40 +177,42 @@ void* waitSort(void* head) {
         sleep(5);
         int code = lockMutex();
         if (code != SUCCESS) {
-            destroyMutexes();
-            deleteList(value);
-            exit(EXIT_FAILURE);
+            cleanResourcesAndAbortProgram(value);
         }
         sortList(value);
         code = unlockMutex();
         if (code != SUCCESS) {
-            destroyMutexes();
-            deleteList(value);
-            exit(EXIT_FAILURE);
+            cleanResourcesAndAbortProgram(value);
         }
     }
     return NULL;
 }
 
-int checkOperations(char* value) {
-    if (value[0] == '\n') {
+int findOperations(char* value, int code) {
+    if (code == END_OF_READING) {
+        return stopWorkingList;
+    }
+    if (value[0] == '\n' && strlen(value) == 1) {
         return outputList;
     }
     if (strcmp(value, "end") == 0) {
         return stopWorkingList;
     }
+    if (value[0] == '\0') {
+        return ignoringSymbol;
+    }
     return pushingInList;
 }
 
-void doOperationWithList(char* value, Node** head) {
+void doOperationWithList(Node** head) {
+    char value[81];
     while (LIST_WORK == true) {
         int code = enterLines(value);
-        if (code != SUCCESS) {
-            destroyMutexes();
-            deleteList(head);
-            exit(EXIT_FAILURE);
+        if (code == FAILURE) {
+            printError(code, "An error occurred while reading the input stream");
+            cleanResourcesAndAbortProgram(head);
         }
-        switch (checkOperations(value)) {
+        switch (findOperations(value, code)) {
             case outputList:
                 printList(head);
                 break;
@@ -216,15 +222,16 @@ void doOperationWithList(char* value, Node** head) {
             case stopWorkingList:
                 LIST_WORK = false;
                 break;
+            case ignoringSymbol:
+                break;
         }
     }
 }
 
 int main(int argc, char** argv) {
     Node* head = NULL;
-    char value[80];
-    initializeMutexes();
     pthread_t ntid;
+    initializeMutexes();
     int err = pthread_create(&ntid, NULL, waitSort, (void*)&head);
     if (err != SUCCESS) {
         destroyMutexes();
@@ -232,14 +239,13 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
-    doOperationWithList(value, &head);
+    printf("To add to the list: enter a string.\nTo display the list : press 'enter'.\nTo end the program : enter 'end'.\n");
+    doOperationWithList(&head);
 
     err = pthread_join(ntid, NULL);
     if (err != SUCCESS) {
-        deleteList(&head);
-        destroyMutexes();
         printError(err, "Error in the join function");
-        exit(EXIT_FAILURE);
+        cleanResourcesAndAbortProgram(&head);
     }
 
     destroyMutexes();
