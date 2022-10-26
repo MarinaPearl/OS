@@ -4,7 +4,6 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include <errno.h>
 
 #define SUCCESS 0
 #define FAILURE 1
