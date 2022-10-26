@@ -84,19 +84,8 @@ int push(Node** head, char* text) {
     if (code != SUCCESS) {
         cleanResourcesAndAbortProgram(head);
     }
-
     Node* newList = (Node*)malloc(sizeof(Node));
-    if (newList == NULL) {
-        perror("Error in malloc");
-        cleanResourcesAndAbortProgram(head);
-    }
-
     newList->text = (char*)malloc(sizeof(char) * strlen(text));
-    if (newList->text == NULL) {
-        perror("Error in malloc");
-        cleanResourcesAndAbortProgram(head);
-    }
-
     for (int i = 0; i < strlen(text); ++i) {
         newList->text[i] = text[i];
     }
