@@ -6,7 +6,7 @@
 #define THREAD_POOL_SIZE 4
 #define SUCCESS 0
 
-void* printStrigs(void* arguments) {
+void* printStrings(void* arguments) {
     char** value = (char**)arguments;
     for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
         printf("%s\n", value[i]);
@@ -25,7 +25,7 @@ void releaseResourses(int index, pthread_t* ntid) {
     for (int i = 0; i < index; ++i) {
         int code = pthread_join(ntid[i], NULL);
         if (code != SUCCESS) {
-            printErrorandAbortProgram(err, "Error in the join function");
+            printErrorandAbortProgram(code, "Error in the join function");
         }
     }
 }
@@ -41,7 +41,7 @@ int main() {
     pthread_t ntid[THREAD_POOL_SIZE];
     int code;
     for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
-        code = pthread_create(&threads_id[i], NULL, printStrings,(void*)&stringsfotFunctiomInThread[i]);
+        code = pthread_create(&ntid[i], NULL, printStrings,(void*)&stringsfotFunctiomInThread[i]);
         if (code != SUCCESS) {
             releaseResourses(i, ntid);
             printErrorandAbortProgram(code, "Error in create function");
