@@ -213,17 +213,17 @@ void doOperationWithList(Node** head) {
             cleanResourcesAndAbortProgram(head);
         }
         switch (findOperations(value, code)) {
-        case outputList:
-            printList(head);
-            break;
-        case pushingInList:
-            push(head, value);
-            break;
-        case stopWorkingList:
-            LIST_WORK = false;
-            break;
-        case ignoringSymbol:
-            break;
+            case outputList:
+                printList(head);
+                break;
+            case pushingInList:
+                push(head, value);
+                break;
+            case stopWorkingList:
+                LIST_WORK = false;
+                break;
+            case ignoringSymbol:
+                break;
         }
     }
 }
