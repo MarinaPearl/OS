@@ -8,6 +8,8 @@
 #define SUCCESS 0
 #define FAILURE 1
 #define END_OF_READING 2
+#define MAX_SIZE 80
+#define MIN_SIZE 1
 
 pthread_mutex_t MUTEX;
 bool LIST_WORK = true;
@@ -127,11 +129,11 @@ int enterLines(char* value) {
         }
         STOP = true;
     }
-    if (strlen(value) == 80) {
+    if (strlen(value) == MAX_SIZE) {
         STOP = false;
     }
     if (value[0] != '\n' && (strchr(value, '\n') != NULL)) {
-            *strchr(value, '\n') = '\0';
+        *strchr(value, '\n') = '\0';
     }
     return SUCCESS;
 }
@@ -190,7 +192,7 @@ int findOperations(char* value, int code) {
     if (code == END_OF_READING) {
         return stopWorkingList;
     }
-    if (value[0] == '\n' && strlen(value) == 1) {
+    if (value[0] == '\n' && strlen(value) == MIN_SIZE) {
         return outputList;
     }
     if (strcmp(value, "end") == 0) {
@@ -211,17 +213,17 @@ void doOperationWithList(Node** head) {
             cleanResourcesAndAbortProgram(head);
         }
         switch (findOperations(value, code)) {
-            case outputList:
-                printList(head);
-                break;
-            case pushingInList:
-                push(head, value);
-                break;
-            case stopWorkingList:
-                LIST_WORK = false;
-                break;
-            case ignoringSymbol:
-                break;
+        case outputList:
+            printList(head);
+            break;
+        case pushingInList:
+            push(head, value);
+            break;
+        case stopWorkingList:
+            LIST_WORK = false;
+            break;
+        case ignoringSymbol:
+            break;
         }
     }
 }
