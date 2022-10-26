@@ -117,7 +117,7 @@ void printList(Node** head) {
 }
 
 int enterLines(char* value) {
-    if (fgets(value, 81, stdin) == NULL) {
+    if (fgets(value, MAX_SIZE + 1, stdin) == NULL) {
         if (ferror(stdin) != SUCCESS) {
             return FAILURE;
         }
@@ -205,7 +205,7 @@ int findOperations(char* value, int code) {
 }
 
 void doOperationWithList(Node** head) {
-    char value[81];
+    char value[MAX_SIZE + 1];
     while (LIST_WORK == true) {
         int code = enterLines(value);
         if (code == FAILURE) {
