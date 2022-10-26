@@ -159,8 +159,8 @@ void initializeMutexes() {
     }
 }
 
-void sortList(Node** head) {
-    for (Node* p = *head; p != NULL; p = p->next) {
+void sortList(Node* head) {
+    for (Node* p = head; p != NULL; p = p->next) {
         for (Node* tmp = p->next; tmp != NULL; tmp = tmp->next) {
             if (strcmp(p->text, tmp->text) > 0) {
                 char* value = tmp->text;
@@ -179,7 +179,7 @@ void* waitSort(void* head) {
         if (code != SUCCESS) {
             cleanResourcesAndAbortProgram(value);
         }
-        sortList(value);
+        sortList(*value);
         code = unlockMutex();
         if (code != SUCCESS) {
             cleanResourcesAndAbortProgram(value);
