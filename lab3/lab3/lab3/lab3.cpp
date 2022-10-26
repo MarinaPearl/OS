@@ -31,11 +31,12 @@ void releaseResourses(int index, pthread_t* ntid) {
 }
 int main() {
     char* stringsfotFunctiomInThread[THREAD_POOL_SIZE][THREAD_POOL_SIZE] = {
-                                                           {"it is thread 1, string  1", "it is thread 1, string  2", "it is thread 1, string  3", "it is thread 1, string  4"},
-                                                           {"it is thread 2, string  1", "it is thread 2, string  2", "it is thread 2, string  3", "it is thread 2, string  4"},
-                                                           {"it is thread 3, string  1", "it is thread 3, string  2", "it is thread 3, string  3", "it is thread 3, string  4"},
-                                                           {"it is thread 4, string  1", "it is thread 4, string  2", "it is thread 4, string  3", "it is thread 4, string  4"}
-                                                           };
+        {"it is thread 1, string  1", "it is thread 1, string  2", "it is thread 1, string  3", "it is thread 1, string  4"},
+        {"it is thread 2, string  1", "it is thread 2, string  2", "it is thread 2, string  3", "it is thread 2, string  4"},
+        {"it is thread 3, string  1", "it is thread 3, string  2", "it is thread 3, string  3", "it is thread 3, string  4"},
+        {"it is thread 4, string  1", "it is thread 4, string  2", "it is thread 4, string  3", "it is thread 4, string  4"}
+    };
+
     pthread_t ntid[THREAD_POOL_SIZE];
     int code;
     for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
@@ -49,8 +50,9 @@ int main() {
     for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
         int code = pthread_join(ntid[i], NULL);
         if (code != SUCCESS) {
-            printErrorandAbortProgram(err, "Error in the join function");
+            printErrorandAbortProgram(code, "Error in the join function");
         }
     }
+
     return SUCCESS;
 }
