@@ -1,40 +1,56 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <string.h>
 
 #define THREAD_POOL_SIZE 4
+#define SUCCESS 0
 
-typedef struct thread_parameter {
-    int size;
-    char** strings;
-} thread_parameter;
-
-void* print(void* arg) {
-    thread_parameter* threads_parameter = (thread_parameter*)arg;
-    int index_for_thread = pthread_self() - 2;
-    for (int i = 0; i < (threads_parameter + index_for_thread)->size; ++i) {
-        printf("%s\n", *((threads_parameter + index_for_thread)->strings + i));
-    }
-
-    pthread_exit(arg);
-}
-int main(int argc, char* argv[]) {
-    pthread_t threads[THREAD_POOL_SIZE];
-
-    char* strings[] = { "1", "2", "3", "4", "5", "6", "7", "8" };
-
-    thread_parameter threads_parameter[THREAD_POOL_SIZE];
+void* printStrigs(void* arguments) {
+    char** value = (char**)arguments;
     for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
-        threads_parameter[i].size = 2;
-        threads_parameter[i].strings = strings + 2 * i;
+        printf("%s\n", value[i]);
     }
-
-    for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
-        if (pthread_create(&threads[i], NULL, print, (void*)threads_parameter) >
-            perror("pthread_create");
-            exit(EXIT_FAILURE);
-    }
+    pthread_exit(NULL);
 }
 
-pthread_exit(NULL);
+void printErrorandAbortProgram(int valueError, char* msg) {
+    char buf[1024];
+    strerror_r(valueError, buf, sizeof(buf));
+    fprintf(stderr, "%s cause : %s\n", msg, buf);
+    exit(EXIT_FAILURE);
+}
+
+void releaseResourses(int index, pthread_t* ntid) {
+    for (int i = 0; i < index; ++i) {
+        int code = pthread_join(ntid[i], NULL);
+        if (code != SUCCESS) {
+            printErrorandAbortProgram(err, "Error in the join function");
+        }
+    }
+}
+int main() {
+    char* stringsfotFunctiomInThread[THREAD_POOL_SIZE][THREAD_POOL_SIZE] = {
+                                                           {"it is thread 1, string  1", "it is thread 1, string  2", "it is thread 1, string  3", "it is thread 1, string  4"},
+                                                           {"it is thread 2, string  1", "it is thread 2, string  2", "it is thread 2, string  3", "it is thread 2, string  4"},
+                                                           {"it is thread 3, string  1", "it is thread 3, string  2", "it is thread 3, string  3", "it is thread 3, string  4"},
+                                                           {"it is thread 4, string  1", "it is thread 4, string  2", "it is thread 4, string  3", "it is thread 4, string  4"}
+                                                           };
+    pthread_t ntid[THREAD_POOL_SIZE];
+    int code;
+    for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
+        code = pthread_create(&threads_id[i], NULL, printStrings,(void*)&stringsfotFunctiomInThread[i]);
+        if (code != SUCCESS) {
+            releaseResourses(i, ntid);
+            printErrorandAbortProgram(code, "Error in create function");
+        }
+    }
+
+    for (int i = 0; i < THREAD_POOL_SIZE; ++i) {
+        int code = pthread_join(ntid[i], NULL);
+        if (code != SUCCESS) {
+            printErrorandAbortProgram(err, "Error in the join function");
+        }
+    }
+    return SUCCESS;
 }
