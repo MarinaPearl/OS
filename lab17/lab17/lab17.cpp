@@ -161,11 +161,11 @@ void initializeMutexes() {
 
 void sortList(Node** head) {
     for (Node* p = *head; p != NULL; p = p->next) {
-        for (Node* tmp = p; tmp->next != NULL; tmp = tmp->next) {
-            if (strcmp(tmp->text, tmp->next->text) > 0) {
+        for (Node* tmp = p->next; tmp != NULL; tmp = tmp->next) {
+            if (strcmp(p->text, tmp->text) > 0) {
                 char* value = tmp->text;
-                tmp->text = tmp->next->text;
-                tmp->next->text = value;
+                tmp->text = p->text;
+                p->text = value;
             }
         }
     }
