@@ -29,6 +29,7 @@ void releaseResourses(int index, pthread_t* ntid) {
         }
     }
 }
+
 int main() {
     char* stringsfotFunctiomInThread[THREAD_POOL_SIZE][THREAD_POOL_SIZE] = {
         {"it is thread 1, string  1", "it is thread 1, string  2", "it is thread 1, string  3", "it is thread 1, string  4"},
