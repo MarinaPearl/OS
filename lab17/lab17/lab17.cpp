@@ -130,10 +130,8 @@ int enterLines(char* value) {
     if (strlen(value) == 80) {
         STOP = false;
     }
-    if (value[0] != '\n') {
-        if (strchr(value, '\n') != NULL) {
+    if (value[0] != '\n' && (strchr(value, '\n') != NULL)) {
             *strchr(value, '\n') = '\0';
-        }
     }
     return SUCCESS;
 }
