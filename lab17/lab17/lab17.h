@@ -27,17 +27,9 @@ enum listOperations {
     ignoringSymbol
 };
 
-void deleteList(Node** head);
-void printError(char* msg);
-int destroyMutexes();
 void cleanResources(Node** head);
-int lockMutex();
-int unlockMutex();
 void push(Node** head, char* text);
 void printList(Node** head);
-int enterLines(char* value);
 void initializeMutexes();
-void* waitSort(void* head);
-int findOperations(char* value, int code);
-void doOperationWithList(Node** head);
 void initializeResources();
+void sortList(Node** head);
