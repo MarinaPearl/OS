@@ -12,6 +12,9 @@
 #define MAX_LENGTH_LINE 80
 #define MIN_LENGTH_LINE 1
 
+bool LIST_WORK = true;
+bool STOP = true;
+
 typedef struct Node {
     char* text;
     struct Node* next;
@@ -27,7 +30,7 @@ enum listOperations {
 void deleteList(Node** head);
 void printError(char* msg);
 int destroyMutexes();
-void cleanResourcesAndAbortProgram(Node** head);
+void cleanResources(Node** head);
 int lockMutex();
 int unlockMutex();
 void push(Node** head, char* text);
