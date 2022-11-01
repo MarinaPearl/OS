@@ -1,5 +1,8 @@
 ﻿#include "lab17.h"
 
+bool LIST_WORK = true;
+bool STOP = true;
+
 int enterLines(char* value) {
     if (fgets(value, MAX_LENGTH_LINE + 1, stdin) == NULL) {
         if (ferror(stdin) != SUCCESS) {
@@ -7,15 +10,18 @@ int enterLines(char* value) {
         }
         return END_OF_READING;
     }
+
     if (STOP == false) {
         if (value[0] == '\n') {
             value[0] = '\0';
         }
         STOP = true;
     }
+    
     if (strlen(value) == MAX_LENGTH_LINE) {
         STOP = false;
     }
+    
     if (value[0] != '\n' && (strchr(value, '\n') != NULL)) {
         *strchr(value, '\n') = '\0';
     }
@@ -24,18 +30,21 @@ int enterLines(char* value) {
 
 int findOperations(char* value, int code) {
     if (code == END_OF_READING) {
-        return stopWorkingList;
+        return LIST_OPERATIONS_STOP_WORKING;
     }
+
     if (value[0] == '\n' && strlen(value) == MIN_LENGTH_LINE) {
-        return outputList;
+        return LIST_OPERATIONS_OUTPUT;
     }
+    
     if (strcmp(value, "end") == 0) {
-        return stopWorkingList;
+        return LIST_OPERATIONS_STOP_WORKING;
     }
+    
     if (value[0] == '\0') {
-        return ignoringSymbol;
+        return LIST_OPERATIONS_IGNORING_SYMBOL;
     }
-    return pushingInList;
+    return LIST_OPERATIONS_PUSHING;
 }
 
 void doOperationWithList(Node** head) {
@@ -47,17 +56,18 @@ void doOperationWithList(Node** head) {
             cleanResources(head);
             exit(EXIT_FAILURE);
         }
+
         switch (findOperations(value, code)) {
-        case outputList:
+        case LIST_OPERATIONS_OUTPUT:
             printList(head);
             break;
-        case pushingInList:
+        case LIST_OPERATIONS_PUSHING:
             push(head, value);
             break;
-        case stopWorkingList:
+        case LIST_OPERATIONS_STOP_WORKING:
             LIST_WORK = false;
             break;
-        case ignoringSymbol:
+        case LIST_OPERATIONS_IGNORING_SYMBOL:
             break;
         }
     }
@@ -76,6 +86,7 @@ int main(int argc, char** argv) {
     Node* head = NULL;
     pthread_t ntid;
     initializeResources();
+
     errno = pthread_create(&ntid, NULL, waitSort, (void*)&head);
     if (errno != SUCCESS) {
         perror("Unable to create thread");

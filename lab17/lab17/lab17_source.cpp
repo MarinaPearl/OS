@@ -1,6 +1,6 @@
 #include "lab17.h"
 
-pthread_mutex_t MUTEX;
+pthread_mutex_t mutex;
 
 void deleteList(Node** head) {
     Node* prev = NULL;
@@ -16,8 +16,8 @@ void deleteList(Node** head) {
     }
 }
 
-int destroyMutexes() {
-    errno = pthread_mutex_destroy(&MUTEX);
+int destroyMutex() {
+    errno = pthread_mutex_destroy(&mutex);
     if (errno != SUCCESS) {
         perror("Mutex could not  be destroy");
     }
@@ -25,12 +25,12 @@ int destroyMutexes() {
 }
 
 void cleanResources(Node** head) {
-    destroyMutexes();
+    destroyMutex();
     deleteList(head);
 }
 
 int lockMutex() {
-    errno = pthread_mutex_lock(&MUTEX);
+    errno = pthread_mutex_lock(&mutex);
     if (errno != SUCCESS) {
         perror("Mutex could not do lock");
     }
@@ -38,7 +38,7 @@ int lockMutex() {
 }
 
 int unlockMutex() {
-    errno = pthread_mutex_unlock(&MUTEX);
+    errno = pthread_mutex_unlock(&mutex);
     if (errno != SUCCESS) {
         perror("Mutex could not do unlock");
     }
@@ -58,12 +58,14 @@ void push(Node** head, char* text) {
         cleanResources(head);
         exit(EXIT_FAILURE);
     }
+
     newList->text = (char*)malloc(sizeof(char) * strlen(text));
     if (newList->text == NULL) {
         perror("Error in malloc");
         cleanResources(head);
         exit(EXIT_FAILURE);
     }
+
     for (int i = 0; i < strlen(text); ++i) {
         newList->text[i] = text[i];
     }
@@ -83,12 +85,14 @@ void printList(Node** head) {
         cleanResources(head);
         exit(EXIT_FAILURE);
     }
+
     Node* value = *head;
     printf("List:\n");
     while (value) {
-        printf("%s\n", (value)->text);
-        (value) = (value)->next;
+        printf("%s\n", value->text);
+        value = value->next;
     }
+
     printf("\n");
     errno = unlockMutex();
     if (errno != SUCCESS) {
@@ -111,7 +115,7 @@ void initializeMutexes() {
         exit(EXIT_FAILURE);
     }
 
-    errno = pthread_mutex_init(&MUTEX, &attr);
+    errno = pthread_mutex_init(&mutex, &attr);
     if (errno != SUCCESS) {
         perror("Mutex init error");
         exit(EXIT_FAILURE);
@@ -124,6 +128,7 @@ void sortList(Node** head) {
         cleanResources(head);
         exit(EXIT_FAILURE);
     }
+
     for (Node* p = *head; p != NULL; p = p->next) {
         for (Node* tmp = p->next; tmp != NULL; tmp = tmp->next) {
             if (strcmp(p->text, tmp->text) > 0) {
@@ -133,6 +138,7 @@ void sortList(Node** head) {
             }
         }
     }
+
     errno = unlockMutex();
     if (errno != SUCCESS) {
         cleanResources(head);
