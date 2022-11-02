@@ -129,7 +129,6 @@ int main(int argc, char** argv) {
     }
     int err = *(int*)returnValue;
     if (err != SUCCESS) {
-        cleanResources(&head);
         exit(EXIT_FAILURE);
     }
     cleanResources(&head);
