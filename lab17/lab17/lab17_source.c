@@ -88,7 +88,7 @@ void printList(Node** head) {
 
     Node* value = *head;
     printf("List:\n");
-    while (value) {
+    while (value != NULL) {
         printf("%s\n", value->text);
         value = value->next;
     }
