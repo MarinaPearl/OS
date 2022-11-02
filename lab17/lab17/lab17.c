@@ -1,7 +1,19 @@
 ﻿#include "lab17.h"
 
+#define FAILURE 1
+#define END_OF_READING 2
+#define MAX_LENGTH_LINE 80
+#define MIN_LENGTH_LINE 1
+
 bool LIST_WORK = true;
 bool STOP = true;
+
+enum listOperations {
+    LIST_OPERATIONS_OUTPUT,
+    LIST_OPERATIONS_PUSHING,
+    LIST_OPERATIONS_STOP_WORKING,
+    LIST_OPERATIONS_IGNORING_SYMBOL
+};
 
 int enterLines(char* value) {
     if (fgets(value, MAX_LENGTH_LINE + 1, stdin) == NULL) {
