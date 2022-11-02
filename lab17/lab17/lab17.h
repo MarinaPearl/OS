@@ -20,7 +20,7 @@ typedef struct Node {
 void cleanResources(Node** head);
 int push(Node** head, char* text);
 int printList(Node** head);
-void initializeResources(Node** head);
+int initializeResources(Node** head);
 int sortList(Node** head);
 
 #endif // LAB17_H
