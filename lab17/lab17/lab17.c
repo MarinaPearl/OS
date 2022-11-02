@@ -66,8 +66,7 @@ int doOperationWithList(Node** head) {
         int code = enterLines(value);
         if (code == FAILURE) {
             perror("An error occurred while reading the input stream");
-            cleanResources(head);
-            exit(EXIT_FAILURE);
+            return code;
         }
         switch (findOperations(value, code)) {
             case LIST_OPERATIONS_OUTPUT:
@@ -118,6 +117,7 @@ int main(int argc, char** argv) {
     printf("To add to the list: enter a string.\nTo display the list : press 'enter'.\nTo end the program : enter 'end'.\n");
     code = doOperationWithList(&head);
     if (code != SUCCESS) {
+        cleanResources(&head);
         exit(EXIT_FAILURE);
     }
     void* returnValue;
@@ -129,6 +129,7 @@ int main(int argc, char** argv) {
     }
     int err = *(int*)returnValue;
     if (err != SUCCESS) {
+        cleanResources(&head);
         exit(EXIT_FAILURE);
     }
     cleanResources(&head);

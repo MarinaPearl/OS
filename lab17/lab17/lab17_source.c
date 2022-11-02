@@ -47,21 +47,18 @@ int unlockMutex() {
 int push(Node** head, char* text) {
     errno = lockMutex();
     if (errno != SUCCESS) {
-        cleanResources(head);
         return FAILURE;
     }
 
     Node* newList = (Node*)malloc(sizeof(Node));
     if (newList == NULL) {
         perror("Error in malloc");
-        cleanResources(head);
         return FAILURE;
     }
 
     newList->text = (char*)malloc(sizeof(char) * strlen(text));
     if (newList->text == NULL) {
         perror("Error in malloc");
-        cleanResources(head);
         return FAILURE;
     }
 
@@ -73,7 +70,6 @@ int push(Node** head, char* text) {
 
     errno = unlockMutex();
     if (errno != SUCCESS) {
-        cleanResources(head);
         return FAILURE;
     }
     return SUCCESS;
@@ -82,7 +78,6 @@ int push(Node** head, char* text) {
 int printList(Node** head) {
     errno = lockMutex();
     if (errno != SUCCESS) {
-        cleanResources(head);
         return FAILURE;
     }
 
@@ -96,7 +91,6 @@ int printList(Node** head) {
     printf("\n");
     errno = unlockMutex();
     if (errno != SUCCESS) {
-        cleanResources(head);
         return FAILURE;
     }
     return SUCCESS;
@@ -127,7 +121,6 @@ int initializeMutexes() {
 int sortList(Node** head) {
     errno = lockMutex();
     if (errno != SUCCESS) {
-        cleanResources(head);
         return FAILURE;
     }
 
@@ -143,7 +136,6 @@ int sortList(Node** head) {
 
     errno = unlockMutex();
     if (errno != SUCCESS) {
-        cleanResources(head);
         return FAILURE;
     }
     return SUCCESS;
