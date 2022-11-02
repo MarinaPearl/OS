@@ -83,9 +83,9 @@ void* waitSort(void* head) {
 }
 
 int main(int argc, char** argv) {
-    Node* head = NULL;
+    Node* head;
     pthread_t ntid;
-    initializeResources();
+    initializeResources(&head);
 
     errno = pthread_create(&ntid, NULL, waitSort, (void*)&head);
     if (errno != SUCCESS) {

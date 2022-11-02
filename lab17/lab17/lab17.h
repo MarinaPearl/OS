@@ -27,5 +27,5 @@ enum listOperations {
 void cleanResources(Node** head);
 void push(Node** head, char* text);
 void printList(Node** head);
-void initializeResources();
+void initializeResources(Node** head);
 void sortList(Node** head);

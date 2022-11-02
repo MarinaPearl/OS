@@ -146,6 +146,7 @@ void sortList(Node** head) {
     }
 }
 
-void initializeResources() {
+void initializeResources(Node** head) {
+    *head = NULL;
     initializeMutexes();
 }
