@@ -10,6 +10,7 @@
 #include <errno.h>
 
 #define SUCCESS 0
+#define FAILURE 1
 
 typedef struct Node {
     char* text;
@@ -17,9 +18,9 @@ typedef struct Node {
 } Node;
 
 void cleanResources(Node** head);
-void push(Node** head, char* text);
-void printList(Node** head);
+int push(Node** head, char* text);
+int printList(Node** head);
 void initializeResources(Node** head);
-void sortList(Node** head);
+int sortList(Node** head);
 
 #endif // LAB17_H

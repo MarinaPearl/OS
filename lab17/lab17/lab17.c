@@ -1,9 +1,9 @@
 ﻿#include "lab17.h"
 
-#define FAILURE 1
 #define END_OF_READING 2
 #define MAX_LENGTH_LINE 80
 #define MIN_LENGTH_LINE 1
+
 
 bool LIST_WORK = true;
 bool STOP = true;
@@ -59,7 +59,8 @@ int findOperations(char* value, int code) {
     return LIST_OPERATIONS_PUSHING;
 }
 
-void doOperationWithList(Node** head) {
+int doOperationWithList(Node** head) {
+    int code = SUCCESS;
     char value[MAX_LENGTH_LINE + 1];
     while (LIST_WORK == true) {
         int code = enterLines(value);
@@ -68,13 +69,12 @@ void doOperationWithList(Node** head) {
             cleanResources(head);
             exit(EXIT_FAILURE);
         }
-
         switch (findOperations(value, code)) {
             case LIST_OPERATIONS_OUTPUT:
-                printList(head);
+                code = printList(head);
                 break;
             case LIST_OPERATIONS_PUSHING:
-                push(head, value);
+                code = push(head, value);
                 break;
             case LIST_OPERATIONS_STOP_WORKING:
                 LIST_WORK = false;
@@ -82,16 +82,24 @@ void doOperationWithList(Node** head) {
             case LIST_OPERATIONS_IGNORING_SYMBOL:
                 break;
         }
+        if (code != SUCCESS) {
+            LIST_WORK = false;
+        }
     }
+    return code;
 }
 
 void* waitSort(void* head) {
     Node** value = (Node**)head;
+    int code = SUCCESS;
     while (LIST_WORK == true) {
         sleep(5);
-        sortList(value);
+        code = sortList(value);
+        if (code != SUCCESS) {
+            LIST_WORK = false;
+        }
     }
-    pthread_exit(NULL);
+    pthread_exit((void*)&code);
 }
 
 int main(int argc, char** argv) {
@@ -105,17 +113,23 @@ int main(int argc, char** argv) {
         cleanResources(&head);
         exit(EXIT_FAILURE);
     }
-
     printf("To add to the list: enter a string.\nTo display the list : press 'enter'.\nTo end the program : enter 'end'.\n");
-    doOperationWithList(&head);
-
-    errno = pthread_join(ntid, NULL);
+    int code = doOperationWithList(&head);
+    if (code != SUCCESS) {
+        exit(EXIT_FAILURE);
+    }
+    void* returnValue;
+    errno = pthread_join(ntid, &returnValue);
     if (errno != SUCCESS) {
         perror("Error in the join function");
         cleanResources(&head);
         exit(EXIT_FAILURE);
     }
-
+    int code = *(int*)returnValue;
+    if (code != SUCCESS) {
+        cleanResources(&head);
+        exit(EXIT_FAILURE);
+    }
     cleanResources(&head);
     return EXIT_SUCCESS;
 }

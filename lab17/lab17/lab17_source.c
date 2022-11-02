@@ -16,12 +16,11 @@ void deleteList(Node** head) {
     }
 }
 
-int destroyMutex() {
+void destroyMutex() {
     errno = pthread_mutex_destroy(&mutex);
     if (errno != SUCCESS) {
         perror("Mutex could not  be destroy");
     }
-    return errno;
 }
 
 void cleanResources(Node** head) {
@@ -45,25 +44,25 @@ int unlockMutex() {
     return errno;
 }
 
-void push(Node** head, char* text) {
+int push(Node** head, char* text) {
     errno = lockMutex();
     if (errno != SUCCESS) {
         cleanResources(head);
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
 
     Node* newList = (Node*)malloc(sizeof(Node));
     if (newList == NULL) {
         perror("Error in malloc");
         cleanResources(head);
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
 
     newList->text = (char*)malloc(sizeof(char) * strlen(text));
     if (newList->text == NULL) {
         perror("Error in malloc");
         cleanResources(head);
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
 
     for (int i = 0; i < strlen(text); ++i) {
@@ -75,15 +74,16 @@ void push(Node** head, char* text) {
     errno = unlockMutex();
     if (errno != SUCCESS) {
         cleanResources(head);
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
+    return SUCCESS;
 }
 
-void printList(Node** head) {
+int printList(Node** head) {
     errno = lockMutex();
     if (errno != SUCCESS) {
         cleanResources(head);
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
 
     Node* value = *head;
@@ -97,36 +97,38 @@ void printList(Node** head) {
     errno = unlockMutex();
     if (errno != SUCCESS) {
         cleanResources(head);
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
+    return SUCCESS;
 }
 
-void initializeMutexes() {
+int initializeMutexes() {
     pthread_mutexattr_t attr;
     errno = pthread_mutexattr_init(&attr);
     if (errno != SUCCESS) {
         perror("Mutex attributes could not be created");
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
 
     errno = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     if (errno != SUCCESS) {
         perror("Mutex attribute type could not be set");
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
 
     errno = pthread_mutex_init(&mutex, &attr);
     if (errno != SUCCESS) {
         perror("Mutex init error");
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
+    return SUCCESS;
 }
 
-void sortList(Node** head) {
+int sortList(Node** head) {
     errno = lockMutex();
     if (errno != SUCCESS) {
         cleanResources(head);
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
 
     for (Node* p = *head; p != NULL; p = p->next) {
@@ -142,11 +144,13 @@ void sortList(Node** head) {
     errno = unlockMutex();
     if (errno != SUCCESS) {
         cleanResources(head);
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
+    return SUCCESS;
 }
 
-void initializeResources(Node** head) {
+int initializeResources(Node** head) {
     *head = NULL;
-    initializeMutexes();
+    int code = initializeMutexes();
+    return code;
 }
