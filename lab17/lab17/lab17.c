@@ -105,8 +105,10 @@ void* waitSort(void* head) {
 int main(int argc, char** argv) {
     Node* head;
     pthread_t ntid;
-    initializeResources(&head);
-
+    int code = initializeResources(&head);
+    if (code != SUCCESS) {
+        exit(EXIT_FAILURE);
+    }
     errno = pthread_create(&ntid, NULL, waitSort, (void*)&head);
     if (errno != SUCCESS) {
         perror("Unable to create thread");
@@ -114,7 +116,7 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
     printf("To add to the list: enter a string.\nTo display the list : press 'enter'.\nTo end the program : enter 'end'.\n");
-    int code = doOperationWithList(&head);
+    code = doOperationWithList(&head);
     if (code != SUCCESS) {
         exit(EXIT_FAILURE);
     }
@@ -125,8 +127,8 @@ int main(int argc, char** argv) {
         cleanResources(&head);
         exit(EXIT_FAILURE);
     }
-    int code = *(int*)returnValue;
-    if (code != SUCCESS) {
+    int err = *(int*)returnValue;
+    if (err != SUCCESS) {
         cleanResources(&head);
         exit(EXIT_FAILURE);
     }
