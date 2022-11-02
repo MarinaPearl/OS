@@ -58,17 +58,17 @@ void doOperationWithList(Node** head) {
         }
 
         switch (findOperations(value, code)) {
-        case LIST_OPERATIONS_OUTPUT:
-            printList(head);
-            break;
-        case LIST_OPERATIONS_PUSHING:
-            push(head, value);
-            break;
-        case LIST_OPERATIONS_STOP_WORKING:
-            LIST_WORK = false;
-            break;
-        case LIST_OPERATIONS_IGNORING_SYMBOL:
-            break;
+            case LIST_OPERATIONS_OUTPUT:
+                printList(head);
+                break;
+            case LIST_OPERATIONS_PUSHING:
+                push(head, value);
+                break;
+            case LIST_OPERATIONS_STOP_WORKING:
+                LIST_WORK = false;
+                break;
+            case LIST_OPERATIONS_IGNORING_SYMBOL:
+                break;
         }
     }
 }
