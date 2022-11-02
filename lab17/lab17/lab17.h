@@ -1,3 +1,6 @@
+#ifndef LAB17_H
+#define LAB17_H
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
@@ -18,3 +21,5 @@ void push(Node** head, char* text);
 void printList(Node** head);
 void initializeResources(Node** head);
 void sortList(Node** head);
+
+#endif // LAB17_H

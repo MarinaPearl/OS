@@ -5,7 +5,7 @@ pthread_mutex_t mutex;
 void deleteList(Node** head) {
     Node* prev = NULL;
     if ((*head) != NULL) {
-        while ((*head)->next) {
+        while ((*head)->next != NULL) {
             prev = (*head);
             (*head) = (*head)->next;
             free(prev->text);
