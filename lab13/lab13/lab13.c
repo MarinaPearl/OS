@@ -34,6 +34,7 @@ void destroyCondition() {
         perror("Condition variable ould not  be destroy");
     }
 }
+
 int initializeMutexes() {
     pthread_mutexattr_t attr;
     errno = pthread_mutexattr_init(&attr);
