@@ -14,6 +14,7 @@
 pthread_mutex_t mutex;
 pthread_cond_t condition;
 int flag = 0;
+int codeReturn = SUCCESS;
 
 typedef struct argumentsForFunction {
     const char* text;
@@ -107,30 +108,29 @@ int sendSignalCondition() {
 
 void* printTextInThread(void* args) {
     argumetsForFunctionInThread* value = (argumetsForFunctionInThread*)args;
-    int code;
     for (int i = 0; i < value->countIterations; ++i) {
-        code = lockMutex();
-        if (code != SUCCESS) {
-            return (void*)&code;
+        codeReturn = lockMutex();
+        if (codeReturn != SUCCESS) {
+            return (void*)&codeReturn;
         }
         while (flag != value->numberThread) {
-            code = waitCondition();
-            if (code != SUCCESS) {
-                return (void*)&code;
+            codeReturn = waitCondition();
+            if (codeReturn != SUCCESS) {
+                return (void*)&codeReturn;
             }
         }
         printf("%s\n", value->text);
         flag = (value->numberThread + 1) % COUNT_THREADS;
-        code = unlockMutex();
-        if (code != SUCCESS) {
-            return (void*)&code;
+        codeReturn = unlockMutex();
+        if (codeReturn != SUCCESS) {
+            return (void*)&codeReturn;
         }
-        code = sendSignalCondition();
-        if (code != SUCCESS) {
-            return (void*)&code;
+        codeReturn = sendSignalCondition();
+        if (codeReturn != SUCCESS) {
+            return (void*)&codeReturn;
         }
     }
-    return (void*)&code;
+    return (void*)&codeReturn;
 }
 
 void freeResourses() {
