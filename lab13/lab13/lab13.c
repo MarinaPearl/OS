@@ -123,11 +123,11 @@ void* printTextInThread(void* args) {
         }
         printf("%d %s\n", i, value->text);
         flag = (value->numberThread + 1) % COUNT_THREADS;
-        codeReturn = unlockMutex();
+        codeReturn = sendSignalCondition();
         if (codeReturn != SUCCESS) {
             return (void*)&codeReturn;
         }
-        codeReturn = sendSignalCondition();
+        codeReturn = unlockMutex();
         if (codeReturn != SUCCESS) {
             return (void*)&codeReturn;
         }
