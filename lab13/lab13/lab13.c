@@ -84,7 +84,7 @@ int initializeResourses() {
     errno = pthread_cond_init(&condition, NULL);
     if (errno != SUCCESS) {
         destroyMutex();
-        perror("Error in pthread_cond_init");
+        perror("Error in condition init");
         return FAILURE;
     }
     return  SUCCESS;
