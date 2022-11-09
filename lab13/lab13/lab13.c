@@ -62,22 +62,24 @@ int lockMutex() {
     errno = pthread_mutex_lock(&mutex);
     if (errno != SUCCESS) {
         perror("Mutex could not do lock");
+        return FAILURE;
     }
-    return errno;
+    return SUCCESS;
 }
 
 int unlockMutex() {
     errno = pthread_mutex_unlock(&mutex);
     if (errno != SUCCESS) {
         perror("Mutex could not do unlock");
+        return FAILURE;
     }
-    return errno;
+    return SUCCESS;
 }
 
 int initializeResourses() {
     int code = initializeMutexes();
     if (code != SUCCESS) {
-        return code;
+        return FAILURE;
     }
     errno = pthread_cond_init(&condition, NULL);
     if (errno != SUCCESS) {
@@ -91,7 +93,7 @@ int initializeResourses() {
 int waitCondition() {
     errno = pthread_cond_wait(&condition, &mutex);
     if (errno != SUCCESS) {
-        perror("Error in cindition wait");
+        perror("Error in condition wait");
         return FAILURE;
     }
     return SUCCESS;
