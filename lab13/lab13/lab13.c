@@ -121,7 +121,7 @@ void* printTextInThread(void* args) {
                 return (void*)&codeReturn;
             }
         }
-        printf("%d %s\n", value->text, i);
+        printf("%d %s\n", i, value->text);
         flag = (value->numberThread + 1) % COUNT_THREADS;
         codeReturn = unlockMutex();
         if (codeReturn != SUCCESS) {
