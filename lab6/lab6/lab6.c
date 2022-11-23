@@ -9,7 +9,6 @@
 #define MAX_QUANTITY_LINES 100
 #define SUCCESS 0
 #define FAILURE 1
-#define COEFFICIENT 990000
 
 int countThread = 0;
 
@@ -20,7 +19,7 @@ typedef struct argumentsForFunction {
 
 void* printLine(void* args) {
     argumetsForFunctionInThread* value = (argumetsForFunctionInThread*)args;
-    usleep(COEFFICIENT * value->lenght);
+    sleep(value->lenght);
     printf("%s\n", value->text);
     pthread_exit(NULL);
 }
