@@ -27,7 +27,7 @@ void* printLine(void* args) {
 }
 
 int readLines(argumetsForFunctionInThread* array) {
-    printf("Enter lines, please! Or enter 'end' for completions programm!\nMaximum number of rows = 100, Maximum string length = 100\n");
+    printf("Enter lines, please! Or enter 'end' for completions programm!\nMaximum number of rows = 100\n");
     while (fgets(array[countThread].text, MAX_LENGTH_LINE - 1, stdin) != NULL) {
         if (strcmp(array[countThread].text, "end\n") == 0 || countThread == MAX_QUANTITY_LINES) {
             break;
