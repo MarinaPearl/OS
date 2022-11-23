@@ -10,7 +10,7 @@
 #define SUCCESS 0
 #define FAILURE 1
 #define END_OF_READING 2
-#define COEFFICIENT 100000
+#define COEFFICIENT 190000
 
 int countThread = 0;
 
