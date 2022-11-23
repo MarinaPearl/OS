@@ -9,7 +9,7 @@
 #define MAX_QUANTITY_LINES 100
 #define SUCCESS 0
 #define FAILURE 1
-#define COEFFICIENT 690000
+#define COEFFICIENT 990000
 
 int countThread = 0;
 
