@@ -10,6 +10,7 @@
 #define SUCCESS 0
 #define FAILURE 1
 #define END_OF_READING 2
+#define COEFFICIENT 100000
 
 int countThread = 0;
 
@@ -20,15 +21,15 @@ typedef struct argumentsForFunction {
 
 void* printLine(void* args) {
 	argumetsForFunctionInThread* value = (argumetsForFunctionInThread*)args;
-	sleep(value->lenght);
+	usleep(COEFFICIENT * value->lenght);
 	printf("%s\n", value->text);
 	pthread_exit(NULL);
 }
 
 int readLines(argumetsForFunctionInThread* array) {
-	printf("Enter lines, please! Or enter 'end' for completions programm!\n");
+	printf("Enter lines, please! Or enter 'end' for completions programm!\nMaximum number of rows = 100, Maximum string length = 100\n");
 	while (fgets(array[countThread].text, MAX_LENGTH_LINE + 1, stdin) != NULL) {
-		if (strcmp(array[countThread].text, "end\n") == 0) {
+		if (strcmp(array[countThread].text, "end\n") == 0 || countThread == MAX_QUANTITY_LINES) {
 			break;
 		}
 		if (strchr(array[countThread].text, '\n') != NULL) {
@@ -41,7 +42,6 @@ int readLines(argumetsForFunctionInThread* array) {
 		return FAILURE;
 	}
 	return SUCCESS;
-
 }
 
 int main() {
@@ -53,15 +53,15 @@ int main() {
 		exit(EXIT_FAILURE);
 	}
 	for (int i = 0; i < countThread; ++i) {
-		code = pthread_create(&ntid[i], NULL, printLine, (void*)&args[i]);
-		if (code != SUCCESS) {
+		errno = pthread_create(&ntid[i], NULL, printLine, (void*)&args[i]);
+		if (errno != SUCCESS) {
 			perror("Error in create thread");
 			exit(EXIT_FAILURE);
 		}
 	}
 	for (int i = 0; i < countThread; ++i) {
-		code = pthread_join(ntid[i], NULL);
-		if (code != SUCCESS) {
+		errno = pthread_join(ntid[i], NULL);
+		if (errno != SUCCESS) {
 			perror("Error in join");
 			exit(EXIT_FAILURE);
 		}
