@@ -16,7 +16,7 @@ int countThread = 0;
 
 typedef struct argumentsForFunction {
     char text[MAX_LENGTH_LINE];
-    int lenght;
+    size_t lenght;
 } argumetsForFunctionInThread;
 
 void* printLine(void* args) {
