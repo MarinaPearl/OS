@@ -39,7 +39,7 @@ include CMakeFiles/rules.ninja
 #############################################
 # Logical path to working directory; prefix for absolute paths.
 
-cmake_ninja_workdir = D$:/OS/lab7test/cmake-build-debug/
+cmake_ninja_workdir = D$:/OS/lab7/cmake-build-debug/
 # =============================================================================
 # Object build statements for STATIC_LIBRARY target lab7test
 
@@ -49,7 +49,7 @@ cmake_ninja_workdir = D$:/OS/lab7test/cmake-build-debug/
 
 build cmake_object_order_depends_target_lab7test: phony || CMakeFiles/lab7test.dir
 
-build CMakeFiles/lab7test.dir/library.c.obj: C_COMPILER__lab7test_Debug D$:/OS/lab7test/library.c || cmake_object_order_depends_target_lab7test
+build CMakeFiles/lab7test.dir/library.c.obj: C_COMPILER__lab7test_Debug D$:/OS/lab7/library.c || cmake_object_order_depends_target_lab7test
   DEP_FILE = CMakeFiles\lab7test.dir\library.c.obj.d
   FLAGS = -g -std=gnu99
   OBJECT_DIR = CMakeFiles\lab7test.dir
@@ -79,7 +79,7 @@ build liblab7test.a: C_STATIC_LIBRARY_LINKER__lab7test_Debug CMakeFiles/lab7test
 # Utility command for edit_cache
 
 build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D D:\OS\lab7test\cmake-build-debug && "D:\PC\CLion 2022.2.4\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
+  COMMAND = cmd.exe /C "cd /D D:\OS\lab7\cmake-build-debug && "D:\PC\CLion 2022.2.4\bin\cmake\win\bin\cmake.exe" -E echo "No interactive CMake dialog available.""
   DESC = No interactive CMake dialog available...
   restat = 1
 
@@ -90,7 +90,7 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 # Utility command for rebuild_cache
 
 build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D D:\OS\lab7test\cmake-build-debug && "D:\PC\CLion 2022.2.4\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -SD:\OS\lab7test -BD:\OS\lab7test\cmake-build-debug"
+  COMMAND = cmd.exe /C "cd /D D:\OS\lab7\cmake-build-debug && "D:\PC\CLion 2022.2.4\bin\cmake\win\bin\cmake.exe" --regenerate-during-build -SD:\OS\lab7 -BD:\OS\lab7\cmake-build-debug"
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -108,7 +108,7 @@ build lab7test: phony liblab7test.a
 # =============================================================================
 
 #############################################
-# Folder: D:/OS/lab7test/cmake-build-debug
+# Folder: D:/OS/lab7/cmake-build-debug
 
 build all: phony liblab7test.a
 

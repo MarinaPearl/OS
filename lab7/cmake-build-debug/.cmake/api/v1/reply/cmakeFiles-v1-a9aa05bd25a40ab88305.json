@@ -429,8 +429,8 @@
 	"kind" : "cmakeFiles",
 	"paths" : 
 	{
-		"build" : "D:/OS/lab7test/cmake-build-debug",
-		"source" : "D:/OS/lab7test"
+		"build" : "D:/OS/lab7/cmake-build-debug",
+		"source" : "D:/OS/lab7"
 	},
 	"version" : 
 	{

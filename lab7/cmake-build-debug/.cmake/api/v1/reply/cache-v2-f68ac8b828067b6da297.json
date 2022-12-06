@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "d:/OS/lab7test/cmake-build-debug"
+			"value" : "d:/OS/lab7/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -479,7 +479,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "D:/OS/lab7test"
+			"value" : "D:/OS/lab7"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -1095,7 +1095,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "D:/OS/lab7test/cmake-build-debug"
+			"value" : "D:/OS/lab7/cmake-build-debug"
 		},
 		{
 			"name" : "lab7test_IS_TOP_LEVEL",
@@ -1119,7 +1119,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "D:/OS/lab7test"
+			"value" : "D:/OS/lab7"
 		}
 	],
 	"kind" : "cache",
