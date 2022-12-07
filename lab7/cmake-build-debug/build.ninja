@@ -49,8 +49,8 @@ cmake_ninja_workdir = D$:/OS/lab7/cmake-build-debug/
 
 build cmake_object_order_depends_target_lab7: phony || CMakeFiles/lab7.dir
 
-build CMakeFiles/lab7.dir/library.c.obj: C_COMPILER__lab7_Debug D$:/OS/lab7/library.c || cmake_object_order_depends_target_lab7
-  DEP_FILE = CMakeFiles\lab7.dir\library.c.obj.d
+build CMakeFiles/lab7.dir/lab7.c.obj: C_COMPILER__lab7_Debug D$:/OS/lab7/lab7.c || cmake_object_order_depends_target_lab7
+  DEP_FILE = CMakeFiles\lab7.dir\lab7.c.obj.d
   FLAGS = -g -std=gnu99
   OBJECT_DIR = CMakeFiles\lab7.dir
   OBJECT_FILE_DIR = CMakeFiles\lab7.dir
@@ -63,7 +63,7 @@ build CMakeFiles/lab7.dir/library.c.obj: C_COMPILER__lab7_Debug D$:/OS/lab7/libr
 #############################################
 # Link the executable lab7.exe
 
-build lab7.exe: C_EXECUTABLE_LINKER__lab7_Debug CMakeFiles/lab7.dir/library.c.obj
+build lab7.exe: C_EXECUTABLE_LINKER__lab7_Debug CMakeFiles/lab7.dir/lab7.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\lab7.dir
