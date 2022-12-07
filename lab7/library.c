@@ -65,7 +65,17 @@ void freeResourses(copyInfo *info) {
     }
 }
 
-int initializeResources(size_t destLength) {
+int initializeStartResources(char** srcBuf, char** destBuf, size_t srcPathLen, size_t destPathLen) {
+    *srcBuf = (char *) malloc(srcPathLen * sizeof(char) + SIZE_END_LINE);
+    if (srcBuf == NULL) {
+        perror("Error in malloc");
+        return FAILURE;
+    }
+    *destBuf = (char *) malloc(destPathLen * sizeof(char) + SIZE_END_LINE);
+    if (destBuf == NULL) {
+        perror("Error in malloc");
+        return FAILURE;
+    }
     errno = pthread_attr_init(&attr);
     if (errno != SUCCESS) {
         perror("Error in attr init");
@@ -77,7 +87,7 @@ int initializeResources(size_t destLength) {
         destroyResources();
         return FAILURE;
     }
-    destinationPath = (char *) malloc(sizeof(char) * destLength);
+    destinationPath = (char *) malloc(sizeof(char) * destPathLen);
     if (destinationPath == NULL) {
         return FAILURE;
     }
@@ -360,17 +370,9 @@ int createThreadForFile(copyInfo *info) {
 int startCp_R(const char* src, const char* dest) {
     size_t srcPathLen = strlen(src);
     size_t destPathLen = strlen(dest);
-    char *srcBuf = (char *) malloc(srcPathLen * sizeof(char) + SIZE_END_LINE);
-    if (srcBuf == NULL) {
-        perror("Error in malloc");
-        return FAILURE;
-    }
-    char *destBuf = (char *) malloc(destPathLen * sizeof(char) + SIZE_END_LINE);
-    if (destBuf == NULL) {
-        perror("Error in malloc");
-        return FAILURE;
-    }
-    int retInitRes = initializeResources(destPathLen);
+    char* srcBuf;
+    char* destBuf;
+    int retInitRes = initializeStartResources(&srcBuf, &destBuf, srcPathLen, destPathLen);
     if (retInitRes != SUCCESS) {
         return FAILURE;
     }
