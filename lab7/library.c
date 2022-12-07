@@ -115,14 +115,6 @@ int readDir(DIR *dir, struct dirent *entry, struct dirent **result) {
     return errno;
 }
 
-int checkRecursion(copyInfo *info) {
-    printf("%s ---- %s\n", info->srcPath, destinationPath);
-    if (strcmp(info->srcPath, destinationPath) == STRING_EQUALITY) {
-        return FAILURE;
-    }
-    return SUCCESS;
-}
-
 bool equateString(char *path, char *unsuitablePath) {
     return strcmp(path, unsuitablePath) == STRING_EQUALITY;
 }
@@ -178,7 +170,6 @@ int checkFile(copyInfo *info) {
             }
             break;
         case type_OTHER:
-            //fprintf(stderr, "This is not a directory or a regular file\n");
             return NOT_FILE;
     }
     return SUCCESS;
@@ -191,11 +182,32 @@ void closeDir(DIR *dir) {
     }
 }
 
+int createNewPath(char* srcNext, char* destNext, copyInfo* infoNext, copyInfo* info, size_t maxPathLength, struct dirent* entry) {
+    struct stat structStat;
+    srcNext = appendPath(info->srcPath, entry->d_name, maxPathLength);
+    if (srcNext == NULL) {
+        return FAILURE;
+    }
+    destNext = appendPath(info->destPath, entry->d_name, maxPathLength);
+    if (destNext == NULL) {
+        return FAILURE;
+    }
+    if (lstat(srcNext, &structStat) != SUCCESS) {
+        perror("Error in stat");
+        errno = SUCCESS;
+        exit(EXIT_FAILURE);
+    }
+    infoNext = createCopyInfo(srcNext, destNext, structStat.st_mode);
+    if (info == NULL) {
+        return FAILURE;
+    }
+    int retCheck = checkFile(infoNext);
+    if (retCheck != SUCCESS) {
+        return retCheck;
+    }
+}
+
 int copyDir(copyInfo *info) {
-//    int ret = checkRecursion(info);
-//    if (ret != SUCCESS) {
-//        return FAILURE;
-//    }
     int ret;
     size_t maxPathLength = (size_t) pathconf(info->srcPath, _PC_PATH_MAX);
     ret = makeDir(info);
@@ -206,11 +218,9 @@ int copyDir(copyInfo *info) {
     if (dir == NULL) {
         return FAILURE;
     }
-    size_t entryLen = offsetof(struct dirent, d_name) + pathconf(info->srcPath, _PC_NAME_MAX) +
-                      SIZE_END_LINE;
+    size_t entryLen = offsetof(struct dirent, d_name) + pathconf(info->srcPath, _PC_NAME_MAX) + SIZE_END_LINE;
     struct dirent *entry = (struct dirent *) malloc(entryLen);
     struct dirent *result;
-    struct stat structStat;
     if (entry == NULL) {
         perror("Error in malloc\n");
         closeDir(dir);
@@ -226,43 +236,17 @@ int copyDir(copyInfo *info) {
         if (equateString(info->srcPath, destinationPath)) {
             continue;
         }
-        char *srcNext = appendPath(info->srcPath, entry->d_name, maxPathLength);
-        if (srcNext == NULL) {
+        char* srcNext;
+        char *destNext;
+        copyInfo* infoNext;
+        ret = createNewPath(srcNext, destNext, infoNext, info, maxPathLength, entry);
+        if (ret != SUCCESS) {
             closeDir(dir);
-            return FAILURE;
+            return ret;
         }
-        char *destNext = appendPath(info->destPath, entry->d_name, maxPathLength);
-        if (destNext == NULL) {
-            closeDir(dir);
-            return FAILURE;
-        }
-        if (lstat(srcNext, &structStat) != SUCCESS) {
-//            if (errno == ENOENT) {
-//                errno = SUCCESS;
-//                continue;
-//            }
-            perror("Error in stat");
-            errno = SUCCESS;
-            closeDir(dir);
-            exit(EXIT_FAILURE);
-        }
-        copyInfo *infoNext = createCopyInfo(srcNext, destNext, structStat.st_mode);
-        if (info == NULL) {
-            closeDir(dir);
-            return FAILURE;
-        }
-        int retCheck = checkFile(infoNext);
-        if (retCheck != SUCCESS) {
-            closeDir(dir);
-            return retCheck;
-        }
-    }
-    if (ret != SUCCESS) {
-        closeDir(dir);
-        return FAILURE;
     }
     closeDir(dir);
-    return SUCCESS;
+    return ret;
 }
 
 void *copyDirInThread(void *arg) {
@@ -327,7 +311,6 @@ int copyFile(copyInfo *info) {
     }
     ssize_t readBytes;
     while ((readBytes = read(srcFd, buffer, COPE_BUF_SIZE))) {
-      //  printf("123\n");
         ssize_t writtenBytes = write(destFd, buffer, readBytes);
         if (writtenBytes < readBytes) {
             perror("Error in write");
@@ -374,39 +357,34 @@ int createThreadForFile(copyInfo *info) {
     return SUCCESS;
 }
 
-int main(int argc, const char **argv) {
-    if (argc != NUMBER_INPUT_ARGUMENTS) {
-        printf(DESCRIPTION_INPUT_ARGUMENTS);
-        exit(EXIT_FAILURE);
-    }
-    size_t srcPathLen = strlen(argv[1]);
-    size_t destPathLen = strlen(argv[2]);
+int startCp_R(const char* src, const char* dest) {
+    size_t srcPathLen = strlen(src);
+    size_t destPathLen = strlen(dest);
     char *srcBuf = (char *) malloc(srcPathLen * sizeof(char) + SIZE_END_LINE);
     if (srcBuf == NULL) {
         perror("Error in malloc");
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
     char *destBuf = (char *) malloc(destPathLen * sizeof(char) + SIZE_END_LINE);
     if (destBuf == NULL) {
         perror("Error in malloc");
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
     int retInitRes = initializeResources(destPathLen);
     if (retInitRes != SUCCESS) {
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
     if (atexit(destroyResources) != SUCCESS) {
         perror("Error in atexit");
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
-    strcpy(srcBuf, argv[1]);
-    strcpy(destBuf, argv[2]);
-    strcpy(destinationPath, argv[2]);
-    struct dirent dirent;
+    strcpy(srcBuf, src);
+    strcpy(destBuf, dest);
+    strcpy(destinationPath, dest);
     struct stat structStat;
-    if (stat(srcBuf, &structStat) != SUCCESS) {
+    if (lstat(srcBuf, &structStat) != SUCCESS) {
         perror("Error in stat");
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
     copyInfo *copy = createCopyInfo(srcBuf, destBuf, structStat.st_mode);
     if (copy == NULL) {
@@ -415,6 +393,17 @@ int main(int argc, const char **argv) {
     int retCreate = createThreadForDir(copy);
     if (retCreate != SUCCESS) {
         freeResourses(copy);
+        return FAILURE;
+    }
+}
+
+int main(int argc, const char **argv) {
+    if (argc != NUMBER_INPUT_ARGUMENTS) {
+        printf(DESCRIPTION_INPUT_ARGUMENTS);
+        exit(EXIT_FAILURE);
+    }
+    int retCp_r = startCp_R(argv[1], argv[2]);
+    if (retCp_r != SUCCESS) {
         exit(EXIT_FAILURE);
     }
     pthread_exit(NULL);

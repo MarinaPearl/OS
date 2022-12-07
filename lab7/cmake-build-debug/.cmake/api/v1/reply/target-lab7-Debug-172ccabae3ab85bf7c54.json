@@ -1,9 +1,11 @@
 {
-	"archive" : {},
 	"artifacts" : 
 	[
 		{
-			"path" : "liblab7test.a"
+			"path" : "lab7.exe"
+		},
+		{
+			"path" : "lab7.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -11,7 +13,7 @@
 	{
 		"commands" : 
 		[
-			"add_library"
+			"add_executable"
 		],
 		"files" : 
 		[
@@ -57,9 +59,28 @@
 			]
 		}
 	],
-	"id" : "lab7test::@6890427a1f51a3e7e1df",
-	"name" : "lab7test",
-	"nameOnDisk" : "liblab7test.a",
+	"id" : "lab7::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
+				"role" : "libraries"
+			}
+		],
+		"language" : "C"
+	},
+	"name" : "lab7",
+	"nameOnDisk" : "lab7.exe",
 	"paths" : 
 	{
 		"build" : ".",
@@ -84,5 +105,5 @@
 			"sourceGroupIndex" : 0
 		}
 	],
-	"type" : "STATIC_LIBRARY"
+	"type" : "EXECUTABLE"
 }

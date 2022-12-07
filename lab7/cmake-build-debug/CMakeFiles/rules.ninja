@@ -14,7 +14,7 @@
 #############################################
 # Rule for compiling C files.
 
-rule C_COMPILER__lab7test_Debug
+rule C_COMPILER__lab7_Debug
   depfile = $DEP_FILE
   deps = gcc
   command = "D:\PC\CLion 2022.2.4\bin\mingw\bin\gcc.exe" $DEFINES $INCLUDES $FLAGS -MD -MT $out -MF $DEP_FILE -o $out -c $in
@@ -22,11 +22,11 @@ rule C_COMPILER__lab7test_Debug
 
 
 #############################################
-# Rule for linking C static library.
+# Rule for linking C executable.
 
-rule C_STATIC_LIBRARY_LINKER__lab7test_Debug
-  command = cmd.exe /C "$PRE_LINK && "D:\PC\CLion 2022.2.4\bin\cmake\win\bin\cmake.exe" -E rm -f $TARGET_FILE && "D:\PC\CLion 2022.2.4\bin\mingw\bin\ar.exe" qc $TARGET_FILE $LINK_FLAGS $in && "D:\PC\CLion 2022.2.4\bin\mingw\bin\ranlib.exe" $TARGET_FILE && $POST_BUILD"
-  description = Linking C static library $TARGET_FILE
+rule C_EXECUTABLE_LINKER__lab7_Debug
+  command = cmd.exe /C "$PRE_LINK && "D:\PC\CLion 2022.2.4\bin\mingw\bin\gcc.exe" $FLAGS $LINK_FLAGS $in -o $TARGET_FILE -Wl,--out-implib,$TARGET_IMPLIB -Wl,--major-image-version,0,--minor-image-version,0 $LINK_PATH $LINK_LIBRARIES && $POST_BUILD"
+  description = Linking C executable $TARGET_FILE
   restat = $RESTAT
 
 
