@@ -199,31 +199,25 @@ int createNewPath(char* srcNext, char* destNext, copyInfo* infoNext, copyInfo* i
     struct stat structStat;
     srcNext = appendPath(info->srcPath, entry->d_name, maxPathLength);
     if (srcNext == NULL) {
-        free(entry);
         return FAILURE;
     }
     destNext = appendPath(info->destPath, entry->d_name, maxPathLength);
     if (destNext == NULL) {
-        free(entry);
         return FAILURE;
     }
     if (lstat(srcNext, &structStat) != SUCCESS) {
         perror("Error in stat");
-        free(entry);
         errno = SUCCESS;
         return FAILURE;
     }
     infoNext = createCopyInfo(srcNext, destNext, structStat.st_mode);
     if (info == NULL) {
-        free(entry);
         return FAILURE;
     }
     int retCheck = checkFile(infoNext);
     if (retCheck != SUCCESS) {
-        free(entry);
         return retCheck;
     }
-    free(entry);
 }
 
 int copyDir(copyInfo *info) {
