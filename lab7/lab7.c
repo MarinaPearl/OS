@@ -208,7 +208,7 @@ int createNewPath(char* srcNext, char* destNext, copyInfo* infoNext, copyInfo* i
     if (lstat(srcNext, &structStat) != SUCCESS) {
         perror("Error in stat");
         errno = SUCCESS;
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
     infoNext = createCopyInfo(srcNext, destNext, structStat.st_mode);
     if (info == NULL) {
@@ -390,7 +390,7 @@ int startCp_R(const char* src, const char* dest) {
     }
     copyInfo *copy = createCopyInfo(srcBuf, destBuf, structStat.st_mode);
     if (copy == NULL) {
-        exit(EXIT_FAILURE);
+        return FAILURE;
     }
     int retCreate = createThreadForDir(copy);
     if (retCreate != SUCCESS) {
