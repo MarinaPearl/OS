@@ -22,6 +22,9 @@
 #define SUCCESS_FILE_DESCRIPTOR 0
 #define COPE_BUF_SIZE 4096
 #define NOT_FILE (-2)
+#define SRC_PATH 1
+#define DEST_PATH 2
+#define MIN_SIZE_FILE 0
 
 pthread_attr_t attr;
 char *destinationPath;
@@ -240,14 +243,11 @@ int copyDir(copyInfo *info) {
         if (result == NULL) {
             break;
         }
-        if (equateString(entry->d_name, ".") || equateString(entry->d_name, "..")) {
+        if (equateString(entry->d_name, ".") || equateString(entry->d_name, "..") ||
+                equateString(info->srcPath, destinationPath)) {
             continue;
         }
-        if (equateString(info->srcPath, destinationPath)) {
-            continue;
-        }
-        char* srcNext;
-        char *destNext;
+        char *srcNext, *destNext;
         copyInfo* infoNext;
         ret = createNewPath(srcNext, destNext, infoNext, info, maxPathLength, entry);
         if (ret != SUCCESS) {
@@ -320,14 +320,14 @@ int copyFile(copyInfo *info) {
         return FAILURE;
     }
     ssize_t readBytes;
-    while ((readBytes = read(srcFd, buffer, COPE_BUF_SIZE))) {
+    while ((readBytes = read(srcFd, buffer, COPE_BUF_SIZE)) > MIN_SIZE_FILE) {
         ssize_t writtenBytes = write(destFd, buffer, readBytes);
         if (writtenBytes < readBytes) {
             perror("Error in write");
             return FAILURE;
         }
     }
-    if (readBytes < 0) {
+    if (readBytes < MIN_SIZE_FILE) {
         perror("Error in read");
         return FAILURE;
     }
@@ -404,7 +404,7 @@ int main(int argc, const char **argv) {
         printf(DESCRIPTION_INPUT_ARGUMENTS);
         exit(EXIT_FAILURE);
     }
-    int retCp_r = startCp_R(argv[1], argv[2]);
+    int retCp_r = startCp_R(argv[SRC_PATH], argv[DEST_PATH]);
     if (retCp_r != SUCCESS) {
         exit(EXIT_FAILURE);
     }
