@@ -241,7 +241,6 @@ int copyDir(copyInfo *info) {
     }
     while ((ret = readDir(dir, entry, &result)) == SUCCESS) {
         if (result == NULL) {
-            free(entry);
             break;
         }
         if (equateString(entry->d_name, ".") || equateString(entry->d_name, "..") ||
@@ -252,9 +251,7 @@ int copyDir(copyInfo *info) {
         copyInfo* infoNext;
         ret = createNewPath(srcNext, destNext, infoNext, info, maxPathLength, entry);
         if (ret != SUCCESS) {
-            free(entry);
-            closeDir(dir);
-            return ret;
+            break;
         }
     }
     free(entry);
