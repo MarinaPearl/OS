@@ -232,8 +232,7 @@ int copyDir(copyInfo *info) {
         return FAILURE;
     }
     size_t entryLen = offsetof(struct dirent, d_name) + pathconf(info->srcPath, _PC_NAME_MAX) + SIZE_END_LINE;
-    //struct dirent *entry = (struct dirent *) malloc(entryLen);
-    struct dirent *entry;
+    struct dirent *entry = (struct dirent *) malloc(entryLen);
     struct dirent *result;
     if (entry == NULL) {
         perror("Error in malloc\n");
@@ -242,6 +241,7 @@ int copyDir(copyInfo *info) {
     }
     while ((ret = readDir(dir, entry, &result)) == SUCCESS) {
         if (result == NULL) {
+            free(entry);
             break;
         }
         if (equateString(entry->d_name, ".") || equateString(entry->d_name, "..") ||
@@ -252,10 +252,12 @@ int copyDir(copyInfo *info) {
         copyInfo* infoNext;
         ret = createNewPath(srcNext, destNext, infoNext, info, maxPathLength, entry);
         if (ret != SUCCESS) {
+            free(entry);
             closeDir(dir);
             return ret;
         }
     }
+    free(entry);
     closeDir(dir);
     return ret;
 }
