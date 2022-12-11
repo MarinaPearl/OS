@@ -232,7 +232,8 @@ int copyDir(copyInfo *info) {
         return FAILURE;
     }
     size_t entryLen = offsetof(struct dirent, d_name) + pathconf(info->srcPath, _PC_NAME_MAX) + SIZE_END_LINE;
-    struct dirent *entry = (struct dirent *) malloc(entryLen);
+    //struct dirent *entry = (struct dirent *) malloc(entryLen);
+    struct dirent *entry;
     struct dirent *result;
     if (entry == NULL) {
         perror("Error in malloc\n");
