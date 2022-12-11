@@ -254,7 +254,7 @@ int copyDir(copyInfo *info) {
             break;
         }
     }
-    printf("size %llu\n", sizeof(entry));
+    printf("size %llu\n", sizeof(*entry));
     free(entry);
     closeDir(dir);
     return ret;
