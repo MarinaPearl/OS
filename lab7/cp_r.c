@@ -1,8 +1,38 @@
 #include "cp_r.h"
+#include <semaphore.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <errno.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <fcntl.h>
+
+#define SIZE_END_LINE 1
+#define SUCCESS 0
+#define FAILURE (-1)
+#define TIMEOUT_LIMIT_OPEN_FILES 1
+#define STRING_EQUALITY 0
+#define SUCCESS_FILE_DESCRIPTOR 0
+#define COPE_BUF_SIZE 4096
+#define NOT_FILE (-2)
+#define MIN_SIZE_FILE 0
 
 pthread_attr_t attr;
 char *destinationPath;
 
+typedef struct {
+    char *srcPath;
+    char *destPath;
+    mode_t mode;
+} copyInfo;
+
+enum typeFile {
+    type_DIRECTORY,
+    type_REGULAR_FILE,
+    type_OTHER
+};
 
 copyInfo *createCopyInfo(char *srcPath, char *destPath, mode_t mode) {
     copyInfo *copy = (copyInfo *) malloc(sizeof(copyInfo));
