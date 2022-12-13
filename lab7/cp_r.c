@@ -10,7 +10,6 @@
 #include <fcntl.h>
 
 #define SIZE_END_LINE 1
-#define SUCCESS 0
 #define FAILURE (-1)
 #define TIMEOUT_LIMIT_OPEN_FILES 1
 #define STRING_EQUALITY 0
