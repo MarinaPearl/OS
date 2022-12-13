@@ -142,7 +142,6 @@ char *appendPath(char *dir, char *newName, size_t maxLength) {
     path[pathLen] = '\0';
     path = strncat(path, newName, maxLength - pathLen);
     return path;
-
 }
 
 int findType(mode_t mode) {
