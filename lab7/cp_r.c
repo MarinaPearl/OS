@@ -1,5 +1,4 @@
 #include "cp_r.h"
-#include <semaphore.h>
 #include <string.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -17,6 +16,7 @@
 #define COPE_BUF_SIZE 4096
 #define NOT_FILE (-2)
 #define MIN_SIZE_FILE 0
+#define SUCCESS 0
 
 pthread_attr_t attr;
 char *destinationPath;
@@ -109,8 +109,9 @@ DIR *openDir(const char *dirName) {
         if (dir != NULL) {
             return dir;
         }
-        if (errno != EMFILE)
+        if (errno != EMFILE) {
             return dir;
+        }
         limitDirOpen = true;
     }
 }
@@ -153,7 +154,7 @@ int findType(mode_t mode) {
     return type_OTHER;
 }
 
-int checkFile(copyInfo *info) {
+int startCopy(copyInfo *info) {
     int type = findType(info->mode);
     int retCreate;
     switch (type) {
@@ -201,7 +202,7 @@ int createNewPath(char* srcNext, char* destNext, copyInfo* infoNext, copyInfo* i
     if (info == NULL) {
         return FAILURE;
     }
-    int retCheck = checkFile(infoNext);
+    int retCheck = startCopy(infoNext);
     if (retCheck != SUCCESS) {
         return retCheck;
     }
