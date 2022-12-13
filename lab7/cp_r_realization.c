@@ -23,7 +23,7 @@ void destroyResources() {
     }
 }
 
-void freeResourсes(copyInfo *info) {
+void freeResources(copyInfo *info) {
     if (info != NULL) {
         free(info->srcPath);
         free(info->destPath);
@@ -224,7 +224,7 @@ void *copyDirInThread(void *arg) {
     if (err == FAILURE) {
         fprintf(stderr, "Error in this files : %s %s\n", info->srcPath, info->destPath);
     }
-    freeResourсes(info);
+    freeResources(info);
     pthread_exit(NULL);
 }
 
@@ -302,7 +302,7 @@ void *copyFileInThread(void *arg) {
     if (err != SUCCESS) {
         fprintf(stderr, "Error in this files : %s %s\n", info->srcPath, info->destPath);
     }
-    freeResourсes(info);
+    freeResources(info);
     pthread_exit(NULL);
 }
 
@@ -353,7 +353,7 @@ int startCp_R(const char* src, const char* dest) {
     }
     int retCreate = createThreadForDir(copy);
     if (retCreate != SUCCESS) {
-        freeResourсes(copy);
+        freeResources(copy);
         return FAILURE;
     }
 }

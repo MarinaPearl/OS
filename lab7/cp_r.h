@@ -44,7 +44,7 @@ enum typeFile {
 
 copyInfo *createCopyInfo(char *srcPath, char *destPath, mode_t mode);
 void destroyResources();
-void freeResourсes(copyInfo *info);
+void freeResources(copyInfo *info);
 int initializeStartResources(char** srcBuf, char** destBuf, size_t srcPathLen, size_t destPathLen);
 int makeDir(copyInfo *info);
 DIR *openDir(const char *dirName);
