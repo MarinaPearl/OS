@@ -238,7 +238,7 @@ int copyDir(copyInfo *info) {
         char *srcNext, *destNext;
         copyInfo* infoNext;
         ret = createNewPath(srcNext, destNext, infoNext, info, maxPathLength, entry);
-        if (ret != SUCCESS) {
+        if (ret == FAILURE) {
             break;
         }
     }
