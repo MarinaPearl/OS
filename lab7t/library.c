@@ -1,9 +1,41 @@
-#include "cp_r.h"
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <semaphore.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <pthread.h>
+#include <errno.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <fcntl.h>
+#define NUMBER_INPUT_ARGUMENTS 3
+#define DESCRIPTION_INPUT_ARGUMENTS "The number of arguments is not equal to 2. The first  argument is the sources path.The second argument is the destination path.\n"
+#define SIZE_END_LINE 1
+#define SUCCESS 0
+#define FAILURE (-1)
+#define TIMEOUT_LIMIT_OPEN_FILES 1
+#define STRING_EQUALITY 0
+#define SUCCESS_FILE_DESCRIPTOR 0
+#define COPE_BUF_SIZE 4096
+#define NOT_FILE (-2)
+#define SRC_PATH 1
+#define DEST_PATH 2
+#define MIN_SIZE_FILE 0
 pthread_attr_t attr;
 char *destinationPath;
-
-
+typedef struct {
+    char *srcPath;
+    char *destPath;
+    mode_t mode;
+} copyInfo;
+enum typeFile {
+    type_DIRECTORY,
+    type_REGULAR_FILE,
+    type_OTHER
+};
 copyInfo *createCopyInfo(char *srcPath, char *destPath, mode_t mode) {
     copyInfo *copy = (copyInfo *) malloc(sizeof(copyInfo));
     if (copy == NULL) {
@@ -15,22 +47,19 @@ copyInfo *createCopyInfo(char *srcPath, char *destPath, mode_t mode) {
     copy->mode = mode;
     return copy;
 }
-
 void destroyResources() {
     errno = pthread_attr_destroy(&attr);
     if (errno != SUCCESS) {
         perror("Error in destroy attr");
     }
 }
-
-void freeResources(copyInfo *info) {
+void freeResourses(copyInfo *info) {
     if (info != NULL) {
         free(info->srcPath);
         free(info->destPath);
         free(info);
     }
 }
-
 int initializeStartResources(char** srcBuf, char** destBuf, size_t srcPathLen, size_t destPathLen) {
     *srcBuf = (char *) malloc(srcPathLen * sizeof(char) + SIZE_END_LINE);
     if (srcBuf == NULL) {
@@ -53,13 +82,12 @@ int initializeStartResources(char** srcBuf, char** destBuf, size_t srcPathLen, s
         destroyResources();
         return FAILURE;
     }
-    destinationPath = (char *) malloc(sizeof(char) * destPathLen + SIZE_END_LINE);
+    destinationPath = (char *) malloc(sizeof(char) * destPathLen);
     if (destinationPath == NULL) {
         return FAILURE;
     }
     return SUCCESS;
 }
-
 int makeDir(copyInfo *info) {
     mkdir(info->destPath, info->mode);
     if (errno != SUCCESS && errno != EEXIST) {
@@ -69,7 +97,6 @@ int makeDir(copyInfo *info) {
     errno = SUCCESS;
     return SUCCESS;
 }
-
 DIR *openDir(const char *dirName) {
     bool limitDirOpen = false;
     while (true) {
@@ -85,16 +112,13 @@ DIR *openDir(const char *dirName) {
         limitDirOpen = true;
     }
 }
-
 int readDir(DIR *dir, struct dirent *entry, struct dirent **result) {
     errno = readdir_r(dir, entry, result);
     return errno;
 }
-
 bool equateString(char *path, char *unsuitablePath) {
     return strcmp(path, unsuitablePath) == STRING_EQUALITY;
 }
-
 char *appendPath(char *dir, char *newName, size_t maxLength) {
     char *path = (char *) malloc(maxLength * sizeof(char));
     if (path == NULL) {
@@ -112,9 +136,7 @@ char *appendPath(char *dir, char *newName, size_t maxLength) {
     path[pathLen] = '\0';
     path = strncat(path, newName, maxLength - pathLen);
     return path;
-
 }
-
 int findType(mode_t mode) {
     if (S_ISDIR(mode)) {
         return type_DIRECTORY;
@@ -124,7 +146,8 @@ int findType(mode_t mode) {
     }
     return type_OTHER;
 }
-
+int createThreadForDir(copyInfo *info);
+int createThreadForFile(copyInfo *info);
 int checkFile(copyInfo *info) {
     int type = findType(info->mode);
     int retCreate;
@@ -146,37 +169,41 @@ int checkFile(copyInfo *info) {
     }
     return SUCCESS;
 }
-
 void closeDir(DIR *dir) {
     closedir(dir);
     if (errno != SUCCESS) {
         perror("Error in close dir");
     }
 }
-
 int createNewPath(char* srcNext, char* destNext, copyInfo* infoNext, copyInfo* info, size_t maxPathLength, struct dirent* entry) {
     struct stat structStat;
     srcNext = appendPath(info->srcPath, entry->d_name, maxPathLength);
     if (srcNext == NULL) {
+        free(entry);
         return FAILURE;
     }
     destNext = appendPath(info->destPath, entry->d_name, maxPathLength);
     if (destNext == NULL) {
+        free(entry);
         return FAILURE;
     }
     if (lstat(srcNext, &structStat) != SUCCESS) {
         perror("Error in stat");
+        free(entry);
         errno = SUCCESS;
         return FAILURE;
     }
     infoNext = createCopyInfo(srcNext, destNext, structStat.st_mode);
     if (info == NULL) {
+        free(entry);
         return FAILURE;
     }
     int retCheck = checkFile(infoNext);
     if (retCheck != SUCCESS) {
+        free(entry);
         return retCheck;
     }
+    free(entry);
 }
 
 int copyDir(copyInfo *info) {
@@ -210,24 +237,22 @@ int copyDir(copyInfo *info) {
         copyInfo* infoNext;
         ret = createNewPath(srcNext, destNext, infoNext, info, maxPathLength, entry);
         if (ret != SUCCESS) {
-            break;
+            closeDir(dir);
+            return ret;
         }
     }
-    free(entry);
     closeDir(dir);
     return ret;
 }
-
 void *copyDirInThread(void *arg) {
     copyInfo *info = (copyInfo *) arg;
     int err = copyDir(info);
     if (err == FAILURE) {
         fprintf(stderr, "Error in this files : %s %s\n", info->srcPath, info->destPath);
     }
-    freeResources(info);
+    freeResourses(info);
     pthread_exit(NULL);
 }
-
 int openFile(char *file) {
     bool fdLimit = false;
     while (true) {
@@ -245,7 +270,6 @@ int openFile(char *file) {
         fdLimit = true;
     }
 }
-
 int createFile(char *file, mode_t mode) {
     bool fdLimit = false;
     while (true) {
@@ -263,7 +287,6 @@ int createFile(char *file, mode_t mode) {
         fdLimit = true;
     }
 }
-
 int copyFile(copyInfo *info) {
     int srcFd = openFile(info->srcPath);
     if (srcFd == FAILURE) {
@@ -295,17 +318,15 @@ int copyFile(copyInfo *info) {
     close(destFd);
     return SUCCESS;
 }
-
 void *copyFileInThread(void *arg) {
     copyInfo *info = (copyInfo *) arg;
     int err = copyFile(info);
     if (err != SUCCESS) {
         fprintf(stderr, "Error in this files : %s %s\n", info->srcPath, info->destPath);
     }
-    freeResources(info);
+    freeResourses(info);
     pthread_exit(NULL);
 }
-
 int createThreadForDir(copyInfo *info) {
     pthread_t ntid;
     errno = pthread_create(&ntid, &attr, copyDirInThread, (void *) info);
@@ -315,7 +336,6 @@ int createThreadForDir(copyInfo *info) {
     }
     return SUCCESS;
 }
-
 int createThreadForFile(copyInfo *info) {
     pthread_t ntid;
     errno = pthread_create(&ntid, &attr, copyFileInThread, (void *) info);
@@ -325,7 +345,6 @@ int createThreadForFile(copyInfo *info) {
     }
     return SUCCESS;
 }
-
 int startCp_R(const char* src, const char* dest) {
     size_t srcPathLen = strlen(src);
     size_t destPathLen = strlen(dest);
@@ -353,7 +372,18 @@ int startCp_R(const char* src, const char* dest) {
     }
     int retCreate = createThreadForDir(copy);
     if (retCreate != SUCCESS) {
-        freeResources(copy);
+        freeResourses(copy);
         return FAILURE;
     }
+}
+int main(int argc, const char **argv) {
+    if (argc != NUMBER_INPUT_ARGUMENTS) {
+        printf(DESCRIPTION_INPUT_ARGUMENTS);
+        exit(EXIT_FAILURE);
+    }
+    int retCp_r = startCp_R(argv[SRC_PATH], argv[DEST_PATH]);
+    if (retCp_r != SUCCESS) {
+        exit(EXIT_FAILURE);
+    }
+    pthread_exit(NULL);
 }
