@@ -199,7 +199,7 @@ int createNewPath(char* srcNext, char* destNext, copyInfo* infoNext, copyInfo* i
         return FAILURE;
     }
     infoNext = createCopyInfo(srcNext, destNext, structStat.st_mode);
-    if (info == NULL) {
+    if (infoNext == NULL) {
         return FAILURE;
     }
     int retCheck = startCopy(infoNext);
