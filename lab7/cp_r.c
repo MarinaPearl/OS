@@ -293,7 +293,7 @@ int createFile(char *file, mode_t mode) {
     }
 }
 
-void closeDir (int srcFd, int destDir) {
+void closeDir (int srcFd, int destFd) {
     close(srcFd);
     close(destFd);
 }
