@@ -293,6 +293,11 @@ int createFile(char *file, mode_t mode) {
     }
 }
 
+void closeDir (int srcFd, int destDir) {
+    close(srcFd);
+    close(destFd);
+}
+
 int copyFile(copyInfo *info) {
     int srcFd = openFile(info->srcPath);
     if (srcFd == FAILURE) {
@@ -300,28 +305,25 @@ int copyFile(copyInfo *info) {
     }
     int destFd = createFile(info->destPath, info->mode);
     if (destFd == FAILURE) {
+        close(srcFd);
         return FAILURE;
     }
-    void *buffer = (void *) malloc(COPE_BUF_SIZE);
-    if (buffer == NULL) {
-        perror("Error in malloc");
-        return FAILURE;
-    }
+    char *buffer [COPE_BUF_SIZE];
     ssize_t readBytes;
-    while ((readBytes = read(srcFd, buffer, COPE_BUF_SIZE)) > MIN_SIZE_FILE) {
-        ssize_t writtenBytes = write(destFd, buffer, readBytes);
-        if (writtenBytes < readBytes) {
+    while ((readBytes = read(srcFd, (void*)buffer, COPE_BUF_SIZE)) > MIN_SIZE_FILE) {
+        ssize_t writtenBytes = write(destFd, (void*)buffer, readBytes);
+        if (errno != SUCCESS) {
             perror("Error in write");
+            closeDir(srcFd, destFd);
             return FAILURE;
         }
     }
-    if (readBytes < MIN_SIZE_FILE) {
+    if (errno != SUCCESS) {
         perror("Error in read");
+        closeDir(srcFd, destFd);
         return FAILURE;
     }
-    free(buffer);
-    close(srcFd);
-    close(destFd);
+    closeDir(srcFd, destFd);
     return SUCCESS;
 }
 
