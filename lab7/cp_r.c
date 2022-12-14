@@ -293,7 +293,7 @@ int createFile(char *file, mode_t mode) {
     }
 }
 
-void closeDir (int srcFd, int destFd) {
+void closeFd (int srcFd, int destFd) {
     close(srcFd);
     close(destFd);
 }
@@ -314,16 +314,16 @@ int copyFile(copyInfo *info) {
         ssize_t writtenBytes = write(destFd, (void*)buffer, readBytes);
         if (errno != SUCCESS) {
             perror("Error in write");
-            closeDir(srcFd, destFd);
+            closeFd(srcFd, destFd);
             return FAILURE;
         }
     }
     if (errno != SUCCESS) {
         perror("Error in read");
-        closeDir(srcFd, destFd);
+        closeFd(srcFd, destFd);
         return FAILURE;
     }
-    closeDir(srcFd, destFd);
+    closeFd(srcFd, destFd);
     return SUCCESS;
 }
 
