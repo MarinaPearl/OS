@@ -90,11 +90,12 @@ int initializeStartResources(char** srcBuf, char** destBuf, size_t srcPathLen, s
 }
 
 int makeDir(copyInfo *info) {
-    errno = mkdir(info->destPath, info->mode);
+    mkdir(info->destPath, info->mode);
     if (errno != SUCCESS && errno != EEXIST) {
         perror("Error in mkdir");
         return FAILURE;
     }
+    errno = SUCCESS;
     return SUCCESS;
 }
 
