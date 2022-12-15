@@ -384,7 +384,7 @@ int startCp_R(const char *src, const char *dest) {
     int retInitRes = initializeStartResources(&srcBuf, &destBuf, srcPathLen, destPathLen);
     if (retInitRes != SUCCESS) {
         if (retInitRes == FAILURE_AFTER_MALLOC_INPUT) {
-            free(srcBuf, destBuf);
+            freeInputArgs(srcBuf, destBuf);
         }
         return FAILURE;
     }
