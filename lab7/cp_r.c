@@ -205,18 +205,18 @@ int createNewPath(char *srcNext, char *destNext, copyInfo *infoNext, copyInfo *i
     }
     if (lstat(srcNext, &structStat) != SUCCESS) {
         perror("Error in stat");
-        free(srcNext, destNext);
+        freeNewPath(srcNext, destNext);
         errno = SUCCESS;
         return FAILURE;
     }
     infoNext = createCopyInfo(srcNext, destNext, structStat.st_mode);
     if (infoNext == NULL) {
-        free(srcNext, destNext);
+        freeNewPath(srcNext, destNext);
         return FAILURE;
     }
     int retCheck = startCopy(infoNext);
     if (retCheck != SUCCESS) {
-        free(srcNext, destNext);
+        freeNewPath(srcNext, destNext);
         return retCheck;
     }
 }
