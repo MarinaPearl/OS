@@ -17,6 +17,7 @@
 #define NOT_FILE (-2)
 #define MIN_SIZE_FILE 0
 #define SUCCESS 0
+#define FAILURE_AFTER_MALLOC_INPUT (-2)
 
 pthread_attr_t attr;
 char *destinationPath;
@@ -46,6 +47,7 @@ copyInfo *createCopyInfo(char *srcPath, char *destPath, mode_t mode) {
 }
 
 void destroyResources() {
+    free(destinationPath);
     errno = pthread_attr_destroy(&attr);
     if (errno != SUCCESS) {
         perror("Error in destroy attr");
@@ -60,7 +62,7 @@ void freeResources(copyInfo *info) {
     }
 }
 
-int initializeStartResources(char** srcBuf, char** destBuf, size_t srcPathLen, size_t destPathLen) {
+int initializeStartResources(char **srcBuf, char **destBuf, size_t srcPathLen, size_t destPathLen) {
     *srcBuf = (char *) malloc(srcPathLen * sizeof(char) + SIZE_END_LINE);
     if (srcBuf == NULL) {
         perror("Error in malloc");
@@ -68,23 +70,24 @@ int initializeStartResources(char** srcBuf, char** destBuf, size_t srcPathLen, s
     }
     *destBuf = (char *) malloc(destPathLen * sizeof(char) + SIZE_END_LINE);
     if (destBuf == NULL) {
+        free(srcBuf);
         perror("Error in malloc");
         return FAILURE;
     }
     errno = pthread_attr_init(&attr);
     if (errno != SUCCESS) {
         perror("Error in attr init");
-        return FAILURE;
+        return FAILURE_AFTER_MALLOC_INPUT;
     }
     errno = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
     if (errno != SUCCESS) {
         perror("Error in set detach state");
         destroyResources();
-        return FAILURE;
+        return FAILURE_AFTER_MALLOC_INPUT;
     }
     destinationPath = (char *) malloc(sizeof(char) * destPathLen + SIZE_END_LINE);
     if (destinationPath == NULL) {
-        return FAILURE;
+        return FAILURE_AFTER_MALLOC_INPUT;
     }
     return SUCCESS;
 }
@@ -183,7 +186,13 @@ void closeDir(DIR *dir) {
     }
 }
 
-int createNewPath(char* srcNext, char* destNext, copyInfo* infoNext, copyInfo* info, size_t maxPathLength, struct dirent* entry) {
+void freeNewPath(char* srcNext, char* destNext) {
+    free(srcNext);
+    free(destNext);
+}
+
+int createNewPath(char *srcNext, char *destNext, copyInfo *infoNext, copyInfo *info, size_t maxPathLength,
+                  struct dirent *entry) {
     struct stat structStat;
     srcNext = appendPath(info->srcPath, entry->d_name, maxPathLength);
     if (srcNext == NULL) {
@@ -191,19 +200,23 @@ int createNewPath(char* srcNext, char* destNext, copyInfo* infoNext, copyInfo* i
     }
     destNext = appendPath(info->destPath, entry->d_name, maxPathLength);
     if (destNext == NULL) {
+        free(srcNext);
         return FAILURE;
     }
     if (lstat(srcNext, &structStat) != SUCCESS) {
         perror("Error in stat");
+        free(srcNext, destNext);
         errno = SUCCESS;
         return FAILURE;
     }
     infoNext = createCopyInfo(srcNext, destNext, structStat.st_mode);
     if (infoNext == NULL) {
+        free(srcNext, destNext);
         return FAILURE;
     }
     int retCheck = startCopy(infoNext);
     if (retCheck != SUCCESS) {
+        free(srcNext, destNext);
         return retCheck;
     }
 }
@@ -219,7 +232,8 @@ int copyDir(copyInfo *info) {
     if (dir == NULL) {
         return FAILURE;
     }
-    size_t entryLen = offsetof(struct dirent, d_name) + pathconf(info->srcPath, _PC_NAME_MAX) + SIZE_END_LINE;
+    size_t
+    entryLen = offsetof(struct dirent, d_name) +pathconf(info->srcPath, _PC_NAME_MAX) + SIZE_END_LINE;
     struct dirent *entry = (struct dirent *) malloc(entryLen);
     struct dirent *result;
     if (entry == NULL) {
@@ -236,7 +250,7 @@ int copyDir(copyInfo *info) {
             continue;
         }
         char *srcNext, *destNext;
-        copyInfo* infoNext;
+        copyInfo *infoNext;
         ret = createNewPath(srcNext, destNext, infoNext, info, maxPathLength, entry);
         if (ret == FAILURE) {
             break;
@@ -293,7 +307,7 @@ int createFile(char *file, mode_t mode) {
     }
 }
 
-void closeFd (int srcFd, int destFd) {
+void closeFd(int srcFd, int destFd) {
     close(srcFd);
     close(destFd);
 }
@@ -308,10 +322,10 @@ int copyFile(copyInfo *info) {
         close(srcFd);
         return FAILURE;
     }
-    char *buffer [COPE_BUF_SIZE];
+    char *buffer[COPE_BUF_SIZE];
     ssize_t readBytes;
-    while ((readBytes = read(srcFd, (void*)buffer, COPE_BUF_SIZE)) > MIN_SIZE_FILE) {
-        ssize_t writtenBytes = write(destFd, (void*)buffer, readBytes);
+    while ((readBytes = read(srcFd, (void *) buffer, COPE_BUF_SIZE)) > MIN_SIZE_FILE) {
+        ssize_t writtenBytes = write(destFd, (void *) buffer, readBytes);
         if (errno != SUCCESS) {
             perror("Error in write");
             closeFd(srcFd, destFd);
@@ -357,16 +371,25 @@ int createThreadForFile(copyInfo *info) {
     return SUCCESS;
 }
 
-int startCp_R(const char* src, const char* dest) {
+void freeInputArgs(char *src, che *dest) {
+    free(src);
+    free(dest);
+}
+
+int startCp_R(const char *src, const char *dest) {
     size_t srcPathLen = strlen(src);
     size_t destPathLen = strlen(dest);
-    char* srcBuf;
-    char* destBuf;
+    char *srcBuf;
+    char *destBuf;
     int retInitRes = initializeStartResources(&srcBuf, &destBuf, srcPathLen, destPathLen);
     if (retInitRes != SUCCESS) {
+        if (retInitRes == FAILURE_AFTER_MALLOC_INPUT) {
+            free(srcBuf, destBuf);
+        }
         return FAILURE;
     }
     if (atexit(destroyResources) != SUCCESS) {
+        free(srcBuf, destBuf);
         perror("Error in atexit");
         return FAILURE;
     }
@@ -375,11 +398,13 @@ int startCp_R(const char* src, const char* dest) {
     strcpy(destinationPath, dest);
     struct stat structStat;
     if (lstat(srcBuf, &structStat) != SUCCESS) {
+        free(srcBuf, destBuf);
         perror("Error in stat");
         return FAILURE;
     }
     copyInfo *copy = createCopyInfo(srcBuf, destBuf, structStat.st_mode);
     if (copy == NULL) {
+        free(srcBuf, destBuf);
         return FAILURE;
     }
     int retCreate = createThreadForDir(copy);
