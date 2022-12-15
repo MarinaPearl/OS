@@ -391,7 +391,7 @@ int startCp_R(const char *src, const char *dest) {
         return FAILURE;
     }
     if (atexit(destroyResourcesInExit) != SUCCESS) {
-        freeInputArgs(srcBuf, destBuf);
+        freePath(srcBuf, destBuf);
         perror("Error in atexit");
         return FAILURE;
     }
