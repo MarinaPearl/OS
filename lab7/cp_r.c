@@ -47,7 +47,6 @@ copyInfo *createCopyInfo(char *srcPath, char *destPath, mode_t mode) {
 }
 
 void destroyResources() {
-    free(destinationPath);
     errno = pthread_attr_destroy(&attr);
     if (errno != SUCCESS) {
         perror("Error in destroy attr");
@@ -59,6 +58,13 @@ void freeResources(copyInfo *info) {
         free(info->srcPath);
         free(info->destPath);
         free(info);
+    }
+}
+
+void destroyResourcesInExit() {
+    free(destinationPath);
+    if (errno != SUCCESS) {
+        perror("Error in destroy attr");
     }
 }
 
@@ -87,6 +93,8 @@ int initializeStartResources(char **srcBuf, char **destBuf, size_t srcPathLen, s
     }
     destinationPath = (char *) malloc(sizeof(char) * destPathLen + SIZE_END_LINE);
     if (destinationPath == NULL) {
+        perror("Error in malloc");
+        destroyResources();
         return FAILURE_AFTER_MALLOC_INPUT;
     }
     return SUCCESS;
@@ -216,7 +224,7 @@ int createNewPath(char *srcNext, char *destNext, copyInfo *infoNext, copyInfo *i
     }
     int retCheck = startCopy(infoNext);
     if (retCheck != SUCCESS) {
-        freeNewPath(srcNext, destNext);
+        freeResources(infoNext);
         return retCheck;
     }
 }
@@ -232,8 +240,7 @@ int copyDir(copyInfo *info) {
     if (dir == NULL) {
         return FAILURE;
     }
-    size_t
-    entryLen = offsetof(struct dirent, d_name) +pathconf(info->srcPath, _PC_NAME_MAX) + SIZE_END_LINE;
+    size_t entryLen = offsetof(struct dirent, d_name) +pathconf(info->srcPath, _PC_NAME_MAX) + SIZE_END_LINE;
     struct dirent *entry = (struct dirent *) malloc(entryLen);
     struct dirent *result;
     if (entry == NULL) {
@@ -332,12 +339,11 @@ int copyFile(copyInfo *info) {
             return FAILURE;
         }
     }
+    closeFd(srcFd, destFd);
     if (errno != SUCCESS) {
         perror("Error in read");
-        closeFd(srcFd, destFd);
         return FAILURE;
     }
-    closeFd(srcFd, destFd);
     return SUCCESS;
 }
 
@@ -388,7 +394,7 @@ int startCp_R(const char *src, const char *dest) {
         }
         return FAILURE;
     }
-    if (atexit(destroyResources) != SUCCESS) {
+    if (atexit(destroyResourcesInExit) != SUCCESS) {
         freeInputArgs(srcBuf, destBuf);
         perror("Error in atexit");
         return FAILURE;
