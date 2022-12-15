@@ -371,7 +371,7 @@ int createThreadForFile(copyInfo *info) {
     return SUCCESS;
 }
 
-void freeInputArgs(char *src, che *dest) {
+void freeInputArgs(char *src, char *dest) {
     free(src);
     free(dest);
 }
@@ -389,7 +389,7 @@ int startCp_R(const char *src, const char *dest) {
         return FAILURE;
     }
     if (atexit(destroyResources) != SUCCESS) {
-        free(srcBuf, destBuf);
+        freeInputArgs(srcBuf, destBuf);
         perror("Error in atexit");
         return FAILURE;
     }
@@ -398,13 +398,13 @@ int startCp_R(const char *src, const char *dest) {
     strcpy(destinationPath, dest);
     struct stat structStat;
     if (lstat(srcBuf, &structStat) != SUCCESS) {
-        free(srcBuf, destBuf);
+        freeInputArgs(srcBuf, destBuf);
         perror("Error in stat");
         return FAILURE;
     }
     copyInfo *copy = createCopyInfo(srcBuf, destBuf, structStat.st_mode);
     if (copy == NULL) {
-        free(srcBuf, destBuf);
+        freeInputArgs(srcBuf, destBuf);
         return FAILURE;
     }
     int retCreate = createThreadForDir(copy);
