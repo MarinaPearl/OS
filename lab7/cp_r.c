@@ -333,11 +333,14 @@ int copyFile(copyInfo *info) {
     char *buffer[COPE_BUF_SIZE];
     ssize_t readBytes;
     while ((readBytes = read(srcFd, (void *) buffer, COPE_BUF_SIZE)) > MIN_SIZE_FILE) {
-        ssize_t writtenBytes = write(destFd, (void *) buffer, readBytes);
-        if (errno != SUCCESS) {
-            perror("Error in write");
-            closeFd(srcFd, destFd);
-            return FAILURE;
+        ssize_t writtenBytes = 0;
+        while (writtenBytes < readBytes) {
+            writtenBytes += write(destFd, (void *) buffer, readBytes - writtenBytes);
+            if (errno != SUCCESS) {
+                perror("Error in write");
+                closeFd(srcFd, destFd);
+                return FAILURE;
+            }
         }
     }
     closeFd(srcFd, destFd);
