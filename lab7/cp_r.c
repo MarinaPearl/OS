@@ -335,7 +335,7 @@ int copyFile(copyInfo *info) {
     while ((readBytes = read(srcFd, (void *) buffer, COPE_BUF_SIZE)) > MIN_SIZE_FILE) {
         ssize_t writtenBytes = 0;
         while (writtenBytes < readBytes) {
-            writtenBytes += write(destFd, (void *) buffer, readBytes - writtenBytes);
+            writtenBytes += write(destFd, (void *) (buffer + writtenBytes), readBytes - writtenBytes);
             if (errno != SUCCESS) {
                 perror("Error in write");
                 closeFd(srcFd, destFd);
