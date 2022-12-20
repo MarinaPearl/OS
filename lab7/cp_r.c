@@ -300,10 +300,10 @@ int openFile(char *file) {
             sleep(TIMEOUT_LIMIT_OPEN_FILES);
         }
         int fd = open(file, O_RDONLY);
-        if (fd >= SUCCESS_FILE_DESCRIPTOR) {
+        if (fd != RET_FUNCTION_ERROR) {
             return fd;
         }
-        if (errno != EMFILE && errno != SUCCESS) {
+        if (errno != EMFILE) {
             perror("Error in open");
             return FAILURE;
         }
