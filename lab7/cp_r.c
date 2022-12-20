@@ -343,7 +343,6 @@ int copyBytesInFile(int srcFd, int destFd) {
     ssize_t readBytes;
     while ((readBytes = read(srcFd, (void *) buffer, COPE_BUF_SIZE)) > MIN_SIZE_FILE) {
         ssize_t writtenBytes = 0;
-        write(destFd, (void *) (buffer + writtenBytes), 10);
         while (writtenBytes < readBytes) {
             writtenBytes += write(destFd, (void *) (buffer + writtenBytes), readBytes - writtenBytes);
             if (writtenBytes == RET_FUNCTION_ERROR) {
