@@ -345,13 +345,13 @@ int copyBytesInFile(int srcFd, int destFd) {
         ssize_t writtenBytes = 0;
         while (writtenBytes < readBytes) {
             writtenBytes += write(destFd, (void *) (buffer + writtenBytes), readBytes - writtenBytes);
-            if (writtenBytes == COPY_FILE_ERROR) {
+            if (writtenBytes == RET_FUNCTION_ERROR) {
                 perror("Error in write");
                 return FAILURE;
             }
         }
     }
-    if (readBytes == COPY_FILE_ERROR){
+    if (readBytes == RET_FUNCTION_ERROR){
         perror("Error in read");
         return FAILURE;
     }
