@@ -18,6 +18,7 @@
 #define MIN_SIZE_FILE 0
 #define SUCCESS 0
 #define FAILURE_AND_NEED_FREE (-2)
+#define RET_FUNCTION_ERROR (-1)
 
 pthread_attr_t attr;
 char *destinationPath;
@@ -102,8 +103,8 @@ int initializeStartResources(char **srcBuf, char **destBuf, size_t srcPathLen, s
 }
 
 int makeDir(copyInfo *info) {
-    mkdir(info->destPath, info->mode);
-    if (errno != SUCCESS && errno != EEXIST) {
+    int retMkdir = mkdir(info->destPath, info->mode);
+    if (retMkdir == RET_FUNCTION_ERROR && errno != EEXIST) {
         perror("Error in mkdir");
         return FAILURE;
     }
@@ -130,6 +131,9 @@ DIR *openDir(const char *dirName) {
 
 int readDir(DIR *dir, struct dirent *entry, struct dirent **result) {
     errno = readdir_r(dir, entry, result);
+    if (errno != SUCCESS) {
+        perror("Error in readdir_r")
+    }
     return errno;
 }
 
@@ -146,6 +150,7 @@ char *appendPath(char *dir, char *newName, size_t maxLength) {
     strcpy(path, dir);
     size_t pathLen = strlen(path);
     if (pathLen >= maxLength) {
+        free(path);
         fprintf(stderr, "The maximum path length has been reached\n");
         return NULL;
     }
@@ -188,11 +193,12 @@ int startCopy(copyInfo *info) {
     return SUCCESS;
 }
 
-void closeDir(DIR *dir) {
-    closedir(dir);
-    if (errno != SUCCESS) {
+int closeDir(DIR *dir) {
+    int retCloseDir = closedir(dir);
+    if (retCloseDir == RET_FUNCTION_ERROR) {
         perror("Error in close dir");
     }
+    return retCloseDir;
 }
 
 void freePath(char* src, char* dest) {
@@ -230,23 +236,13 @@ int createNewPath(char *srcNext, char *destNext, copyInfo *infoNext, copyInfo *i
     }
 }
 
-int copyDir(copyInfo *info) {
-    int ret;
-    size_t maxPathLength = (size_t) pathconf(info->srcPath, _PC_PATH_MAX);
-    ret = makeDir(info);
-    if (ret != SUCCESS) {
-        return FAILURE;
-    }
-    DIR *dir = openDir(info->srcPath);
-    if (dir == NULL) {
-        return FAILURE;
-    }
+int exploreDir(DIR* dir) {
+    int ret = SUCCESS;
     size_t entryLen = offsetof(struct dirent, d_name) + pathconf(info->srcPath, _PC_NAME_MAX) + SIZE_END_LINE;
     struct dirent *entry = (struct dirent *) malloc(entryLen);
     struct dirent *result;
     if (entry == NULL) {
         perror("Error in malloc\n");
-        closeDir(dir);
         return FAILURE;
     }
     while ((ret = readDir(dir, entry, &result)) == SUCCESS) {
@@ -265,8 +261,26 @@ int copyDir(copyInfo *info) {
         }
     }
     free(entry);
-    closeDir(dir);
     return ret;
+}
+
+int copyDir(copyInfo *info) {
+    int ret = SUCCESS;
+    size_t maxPathLength = (size_t) pathconf(info->srcPath, _PC_PATH_MAX);
+    ret = makeDir(info);
+    if (ret != SUCCESS) {
+        return FAILURE;
+    }
+    DIR *dir = openDir(info->srcPath);
+    if (dir == NULL) {
+        return FAILURE;
+    }
+    int retExploreDir = exploreDir(dir);
+    int retClose = closeDir(dir);
+    if (retExploreDir == FAILURE || retClose == FAILURE) {
+        return FAILURE;
+    }
+    return SUCCESS;
 }
 
 void *copyDirInThread(void *arg) {
@@ -304,10 +318,10 @@ int createFile(char *file, mode_t mode) {
             sleep(TIMEOUT_LIMIT_OPEN_FILES);
         }
         int fd = creat(file, mode);
-        if (fd >= SUCCESS_FILE_DESCRIPTOR) {
+        if (fd != RET_FUNCTION_ERROR) {
             return fd;
         }
-        if (errno != EMFILE && errno != SUCCESS) {
+        if (errno != EMFILE) {
             perror("Error in open");
             return FAILURE;
         }
@@ -315,9 +329,32 @@ int createFile(char *file, mode_t mode) {
     }
 }
 
-void closeFd(int srcFd, int destFd) {
-    close(srcFd);
-    close(destFd);
+int closeFd(int srcFd, int destFd) {
+    int closeSrc = close(srcFd);
+    int closeDest = close(destFd);
+    if (closeSrc == COPY_FILE_ERROR || closeDest == COPY_FILE_ERROR) {
+        perror("Error in close");
+        return FAILURE;
+    }
+}
+
+int copyBytesInFile(int srcFd, int destFd) {
+    char *buffer[COPE_BUF_SIZE];
+    ssize_t readBytes;
+    while ((readBytes = read(srcFd, (void *) buffer, COPE_BUF_SIZE)) > MIN_SIZE_FILE) {
+        ssize_t writtenBytes = 0;
+        while (writtenBytes < readBytes) {
+            writtenBytes += write(destFd, (void *) (buffer + writtenBytes), readBytes - writtenBytes);
+            if (writtenBytes == COPY_FILE_ERROR) {
+                perror("Error in write");
+                return FAILURE;
+            }
+        }
+    }
+    if (readBytes == COPY_FILE_ERROR){
+        perror("Error in read");
+        return FAILURE;
+    }
 }
 
 int copyFile(copyInfo *info) {
@@ -330,22 +367,9 @@ int copyFile(copyInfo *info) {
         close(srcFd);
         return FAILURE;
     }
-    char *buffer[COPE_BUF_SIZE];
-    ssize_t readBytes;
-    while ((readBytes = read(srcFd, (void *) buffer, COPE_BUF_SIZE)) > MIN_SIZE_FILE) {
-        ssize_t writtenBytes = 0;
-        while (writtenBytes < readBytes) {
-            writtenBytes += write(destFd, (void *) (buffer + writtenBytes), readBytes - writtenBytes);
-            if (errno != SUCCESS) {
-                perror("Error in write");
-                closeFd(srcFd, destFd);
-                return FAILURE;
-            }
-        }
-    }
-    closeFd(srcFd, destFd);
-    if (errno != SUCCESS) {
-        perror("Error in read");
+    int retCopyBytes = copyBytesInFile(srcFd, destFd);
+    int retCloseFd = closeFd(srcFd, destFd);
+    if (retCopyBytes == FAILURE || retCloseFd == FAILURE) {
         return FAILURE;
     }
     return SUCCESS;
