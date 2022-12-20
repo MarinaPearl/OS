@@ -132,7 +132,7 @@ DIR *openDir(const char *dirName) {
 int readDir(DIR *dir, struct dirent *entry, struct dirent **result) {
     errno = readdir_r(dir, entry, result);
     if (errno != SUCCESS) {
-        perror("Error in readdir_r")
+        perror("Error in readdir_r");
     }
     return errno;
 }
@@ -236,8 +236,9 @@ int createNewPath(char *srcNext, char *destNext, copyInfo *infoNext, copyInfo *i
     }
 }
 
-int exploreDir(DIR* dir) {
+int exploreDir(DIR* dir, copyInfo* info) {
     int ret = SUCCESS;
+    size_t maxPathLength = (size_t) pathconf(info->srcPath, _PC_PATH_MAX);
     size_t entryLen = offsetof(struct dirent, d_name) + pathconf(info->srcPath, _PC_NAME_MAX) + SIZE_END_LINE;
     struct dirent *entry = (struct dirent *) malloc(entryLen);
     struct dirent *result;
@@ -266,7 +267,6 @@ int exploreDir(DIR* dir) {
 
 int copyDir(copyInfo *info) {
     int ret = SUCCESS;
-    size_t maxPathLength = (size_t) pathconf(info->srcPath, _PC_PATH_MAX);
     ret = makeDir(info);
     if (ret != SUCCESS) {
         return FAILURE;
@@ -275,7 +275,7 @@ int copyDir(copyInfo *info) {
     if (dir == NULL) {
         return FAILURE;
     }
-    int retExploreDir = exploreDir(dir);
+    int retExploreDir = exploreDir(dir, info);
     int retClose = closeDir(dir);
     if (retExploreDir == FAILURE || retClose == FAILURE) {
         return FAILURE;
