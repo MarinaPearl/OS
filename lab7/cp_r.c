@@ -332,7 +332,7 @@ int createFile(char *file, mode_t mode) {
 int closeFd(int srcFd, int destFd) {
     int closeSrc = close(srcFd);
     int closeDest = close(destFd);
-    if (closeSrc == COPY_FILE_ERROR || closeDest == COPY_FILE_ERROR) {
+    if (closeSrc == RET_FUNCTION_ERROR || closeDest == RET_FUNCTION_ERROR) {
         perror("Error in close");
         return FAILURE;
     }
