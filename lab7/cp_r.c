@@ -351,7 +351,7 @@ int copyBytesInFile(int srcFd, int destFd) {
             }
         }
     }
-    if (readBytes == RET_FUNCTION_ERROR){
+    if (readBytes == RET_FUNCTION_ERROR) {
         perror("Error in read");
         return FAILURE;
     }
