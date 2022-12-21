@@ -107,7 +107,6 @@ int makeDir(copyInfo *info) {
         perror("Error in mkdir");
         return FAILURE;
     }
-    errno = SUCCESS;
     return SUCCESS;
 }
 
@@ -220,7 +219,6 @@ int createNewPath(char *srcNext, char *destNext, copyInfo *infoNext, copyInfo *i
     if (lstat(srcNext, &structStat) != SUCCESS) {
         perror("Error in stat");
         freePath(srcNext, destNext);
-        errno = SUCCESS;
         return FAILURE;
     }
     infoNext = createCopyInfo(srcNext, destNext, structStat.st_mode);
@@ -363,11 +361,14 @@ int copyFile(copyInfo *info) {
     }
     int destFd = createFile(info->destPath, info->mode);
     if (destFd == FAILURE) {
-        close(srcFd);
+        int retCloseFd = close(srcFd);
+        if (retCloseFd == RET_FUNCTION_ERROR) {
+            perror("Error in close");
+        }
         return FAILURE;
     }
     int retCopyBytes = copyBytesInFile(srcFd, destFd);
-    int retCloseFd = closeFd(srcFd, destFd);
+    retCloseFd = closeFd(srcFd, destFd);
     if (retCopyBytes == FAILURE || retCloseFd == FAILURE) {
         return FAILURE;
     }
