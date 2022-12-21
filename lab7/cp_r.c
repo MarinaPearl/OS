@@ -243,7 +243,7 @@ int exploreDir(DIR* dir, copyInfo* info) {
         perror("Error in malloc\n");
         return FAILURE;
     }
-    
+
     while ((ret = readDir(dir, entry, &result)) == SUCCESS) {
         if (result == NULL) {
             break;
@@ -362,14 +362,14 @@ int copyFile(copyInfo *info) {
     }
     int destFd = createFile(info->destPath, info->mode);
     if (destFd == FAILURE) {
-        int retCloseFd = close(srcFd);
-        if (retCloseFd == RET_FUNCTION_ERROR) {
+        int retCloseSrcFd = close(srcFd);
+        if (retCloseSrcFd == RET_FUNCTION_ERROR) {
             perror("Error in close");
         }
         return FAILURE;
     }
     int retCopyBytes = copyBytesInFile(srcFd, destFd);
-    retCloseFd = closeFd(srcFd, destFd);
+    int retCloseFd = closeFd(srcFd, destFd);
     if (retCopyBytes == FAILURE || retCloseFd == FAILURE) {
         return FAILURE;
     }
