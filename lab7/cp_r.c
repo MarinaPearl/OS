@@ -231,6 +231,7 @@ int createNewPath(char *srcNext, char *destNext, copyInfo *infoNext, copyInfo *i
         freeResources(infoNext);
         return retCheck;
     }
+    return SUCCESS;
 }
 
 int exploreDir(DIR* dir, copyInfo* info) {
@@ -334,6 +335,7 @@ int closeFd(int srcFd, int destFd) {
         perror("Error in close");
         return FAILURE;
     }
+    return SUCCESS;
 }
 
 int copyBytesInFile(int srcFd, int destFd) {
@@ -353,6 +355,7 @@ int copyBytesInFile(int srcFd, int destFd) {
         perror("Error in read");
         return FAILURE;
     }
+    return SUCCESS;
 }
 
 int copyFile(copyInfo *info) {
@@ -442,4 +445,5 @@ int startCp_R(const char *src, const char *dest) {
         freeResources(copy);
         return FAILURE;
     }
+    return SUCCESS;
 }
