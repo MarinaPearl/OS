@@ -243,6 +243,7 @@ int exploreDir(DIR* dir, copyInfo* info) {
         perror("Error in malloc\n");
         return FAILURE;
     }
+    
     while ((ret = readDir(dir, entry, &result)) == SUCCESS) {
         if (result == NULL) {
             break;
